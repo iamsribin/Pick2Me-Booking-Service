@@ -44,7 +44,7 @@ const BookingSchema: Schema = new Schema({
   date: { type: Date, default: Date.now },
   status: {
     type: String,
-    enum: ["Pending", "Accepted", "Confirmed", "Completed", "Cancelled"],
+    enum: ["Pending", "Accepted", "InRide", "Completed", "Cancelled"],
     default: "Pending",
   },
   pin: { type: Number },

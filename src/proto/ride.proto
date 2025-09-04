@@ -7,9 +7,16 @@ service Ride {
   rpc bookCab (BookCabReq) returns (commonRes);
   rpc fetchDriverBookingList(id) returns (fetchDriverBookingListRes) {}
   rpc fetchDriverBookingDetails(id) returns (BookingResponse) {}
+  rpc checkSecurityPin(checkSecurityPinReq) returns (commonRes) {}
+
    // rpc updateBooking
    // rpc updateAcceptedRide
     //rpc cancelRide
+}
+
+message checkSecurityPinReq{
+string securityPin =1;
+string bookingId = 2;
 }
 
 message id {

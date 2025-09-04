@@ -1,7 +1,11 @@
 import { BookingRepository } from "../../repositories/implementation/booking-repository";
 import { generatePIN } from "../../utils/generatePIN";
 import { IBookingService } from "../interfaces/i-booking-service";
-import { BookingDetailsDto, BookingListDTO, CreateBookingResponseDTO } from "../../dto/booking.dto";
+import {
+  BookingDetailsDto,
+  BookingListDTO,
+  CreateBookingResponseDTO,
+} from "../../dto/booking.dto";
 import { IResponse } from "../../types/common/response";
 import { StatusCode } from "../../types/common/status-code";
 import {
@@ -20,6 +24,8 @@ export class BookingService implements IBookingService {
     data: CreateBookingReq
   ): Promise<IResponse<CreateBookingResponseDTO>> {
     try {
+      console.log("createBooking", data);
+      // location: { lat: 11.1804416, lng: 75.9136256 },
       const drivers = await findNearbyDrivers(
         data.pickupLocation.latitude,
         data.pickupLocation.longitude,
@@ -114,42 +120,46 @@ export class BookingService implements IBookingService {
     }
   }
 
-async fetchDriverBookingList(id: string): Promise<IResponse<BookingListDTO[]>> {
-  try {    
-    const response = await this._bookingRepo.fetchBookingListWithDriverId(id);
+  async fetchDriverBookingList(
+    id: string
+  ): Promise<IResponse<BookingListDTO[]>> {
+    try {
+      const response = await this._bookingRepo.fetchBookingListWithDriverId(id);
 
-    const dtoList: BookingListDTO[] = response.map((booking) => ({
-      _id: booking._id.toString(),
-      pickupLocation: booking.pickupLocation,
-      dropoffLocation: booking.dropoffLocation,
-      distance: booking.distance || null,
-      price: booking.price ?? null,
-      date: booking.date,
-      status: booking.status,
-    }));
+      const dtoList: BookingListDTO[] = response.map((booking) => ({
+        _id: booking._id.toString(),
+        pickupLocation: booking.pickupLocation,
+        dropoffLocation: booking.dropoffLocation,
+        distance: booking.distance || null,
+        price: booking.price ?? null,
+        date: booking.date,
+        status: booking.status,
+      }));
 
-    return {
-      status: StatusCode.OK,
-      message: "Successfully fetched the booking list",
-      data: dtoList,
-    };
-  } catch (error) {
-    console.log("fetchDriverBookingList service", error);
-    throw new Error(`Failed to fetch bookings: ${(error as Error).message}`);
+      return {
+        status: StatusCode.OK,
+        message: "Successfully fetched the booking list",
+        data: dtoList,
+      };
+    } catch (error) {
+      console.log("fetchDriverBookingList service", error);
+      throw new Error(`Failed to fetch bookings: ${(error as Error).message}`);
+    }
   }
-}
 
-
-  async fetchDriverBookingDetails(id: string): Promise<IResponse<BookingDetailsDto>> {
+  async fetchDriverBookingDetails(
+    id: string
+  ): Promise<IResponse<BookingDetailsDto>> {
     try {
       const response = await this._bookingRepo.fetchBookingListWithBookingId(
         id
       );
 
-      if(!response) return {
-        status:StatusCode.NotFound,
-        message:"not booking found",
-      }
+      if (!response)
+        return {
+          status: StatusCode.NotFound,
+          message: "not booking found",
+        };
 
       const dto: BookingDetailsDto = {
         id: response._id.toString(),
@@ -199,6 +209,41 @@ async fetchDriverBookingList(id: string): Promise<IResponse<BookingListDTO[]>> {
       console.log("fetchDriverBookingList service", error);
       throw new Error(`Failed fetch vehicles: ${(error as Error).message}`);
     }
+  }
+
+  async checkSecurityPin(
+    securityPin: string,
+    bookingId: string
+  ): Promise<IResponse<null>> {
+    try {
+      const updatedBooking = await this._bookingRepo.verifyPinAndStartRide(
+        bookingId,
+        Number(securityPin)
+      );
+
+      if (!updatedBooking) {
+        return {
+          status: StatusCode.NotFound,
+          message: "Invalid pin or booking not found",
+        };
+      }
+
+      const payload = {
+        userId: updatedBooking.user.userId,
+        bookingId: updatedBooking._id.toString(),
+        driverId: updatedBooking.driver.driverId,
+      };
+
+      RabbitMQPublisher.publish("driver.start.ride", payload);
+
+      return { 
+        status: StatusCode.Accepted,
+        message: "Pin verified successfully, ride started",
+      };
+    } catch (error) {
+      console.log("Failed check security pin:", error);
+      throw new Error(`Failed check security pin: ${(error as Error).message}`);
+    }          
   }
 
   async cancelRide(user_id: string, ride_id: string): Promise<IResponse<null>> {

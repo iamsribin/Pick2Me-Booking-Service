@@ -1,14 +1,16 @@
 import { IBookingController } from "../interfaces/i-booking-controller";
 import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
 import { IResponse } from "../../types/common/response";
-import { BookingDetailsDto, BookingListDTO, CreateBookingResponseDTO } from "../../dto/booking.dto";
+import {
+  BookingDetailsDto,
+  BookingListDTO,
+  CreateBookingResponseDTO,
+} from "../../dto/booking.dto";
 import { StatusCode } from "../../types/common/status-code";
 import { IBookingService } from "../../services/interfaces/i-booking-service";
 import {
   CreateBookingReq,
   DriverAssignmentPayload,
-  UpdateAcceptRideReq,
-  UpdateBookingReq,
 } from "../../types/booking/request";
 
 export class BookingController implements IBookingController {
@@ -57,12 +59,11 @@ export class BookingController implements IBookingController {
   //   }
   // }
 
-  async handleDriverAcceptance(data:DriverAssignmentPayload): Promise<void> {
+  async handleDriverAcceptance(data: DriverAssignmentPayload): Promise<void> {
     try {
-     await this._bookingService.handleDriverAcceptance(data);
+      await this._bookingService.handleDriverAcceptance(data);
     } catch (error) {
-     console.log("error",error);
-     
+      console.log("error", error);
     }
   }
 
@@ -72,7 +73,7 @@ export class BookingController implements IBookingController {
   ): Promise<void> {
     try {
       const { id } = call.request;
-      
+
       const response = await this._bookingService.fetchDriverBookingList(id);
       callback(null, response);
     } catch (error) {
@@ -99,6 +100,27 @@ export class BookingController implements IBookingController {
         message: (error as Error).message,
       });
     }
+  }
+
+  async checkSecurityPin(
+    call: ServerUnaryCall<
+      { securityPin: string; bookingId: string },
+      IResponse<null>
+    >,
+    callback: sendUnaryData<IResponse<null>>
+  ): Promise<void> {
+try {
+    const { securityPin,bookingId } = call.request;
+      const response = await this._bookingService.checkSecurityPin( securityPin,bookingId );
+      callback(null, response);
+} catch (error) {
+  console.log(error);
+      callback(null, {
+        status: StatusCode.InternalServerError,
+        message: (error as Error).message,
+      });
+}
+
   }
 
   async cancelRide(

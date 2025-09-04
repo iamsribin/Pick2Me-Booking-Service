@@ -23,7 +23,6 @@ export class BookingRepository
     pin: number
   ): Promise<BookingInterface> {
     try {
-
       const response = await bookingModel.create({
         rideId: `ride_${Date.now()}`,
 
@@ -37,12 +36,12 @@ export class BookingRepository
         pickupCoordinates: {
           latitude: data.pickupLocation.latitude,
           longitude: data.pickupLocation.longitude,
-          address:data.pickupLocation.address,
+          address: data.pickupLocation.address,
         },
         dropoffCoordinates: {
           latitude: data.dropOffLocation.latitude,
           longitude: data.dropOffLocation.longitude,
-          address:data.dropOffLocation.address,
+          address: data.dropOffLocation.address,
         },
 
         pickupLocation: data.pickupLocation.address,
@@ -133,7 +132,7 @@ export class BookingRepository
             },
             driverCoordinates: {
               latitude: data.driverCoordinates.latitude,
-              longitude:data.driverCoordinates.longitude,
+              longitude: data.driverCoordinates.longitude,
             },
             status: "Accepted",
           },
@@ -173,6 +172,20 @@ export class BookingRepository
       return response;
     } catch (error) {
       throw new Error(`Failed to fetch bookings: ${(error as Error).message}`);
+    }
+  }
+  async verifyPinAndStartRide(
+    bookingId: string,
+    pin: number
+  ): Promise<BookingInterface | null> {
+    try {
+      return await bookingModel.findOneAndUpdate(
+        { _id: bookingId, pin, status: "Accepted" },
+        { status: "InRide" },
+        { new: true }
+      );
+    } catch (error) {
+      throw new Error(`Failed to verify pin: ${(error as Error).message}`);
     }
   }
 
