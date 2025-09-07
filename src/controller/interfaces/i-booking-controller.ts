@@ -52,7 +52,7 @@ export interface IBookingController {
   ): Promise<void> 
 
   cancelRide(
-    call: ServerUnaryCall<{ userId: string; ride_id: string }, IResponse<null>>,
+    call: ServerUnaryCall<{ userId: string; rideId: string }, IResponse<null>>,
     callback: sendUnaryData<IResponse<null>>
   ): Promise<void>;
 }

@@ -10,5 +10,5 @@ export interface IBookingService {
   fetchDriverBookingList(id:string): Promise<IResponse<BookingListDTO[]>>;
   fetchDriverBookingDetails(id:string): Promise<IResponse<BookingDetailsDto>>;
   checkSecurityPin(securityPin: string, bookingId: string): Promise<IResponse<null>> 
-  cancelRide(user_id: string, ride_id: string): Promise<IResponse<null>>;
+  cancelRide(userId: string, rideId: string): Promise<IResponse<null>>;
 }

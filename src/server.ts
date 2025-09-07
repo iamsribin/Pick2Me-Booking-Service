@@ -62,7 +62,7 @@ bookCab:bookingController.createBooking.bind(bookingController),
 fetchDriverBookingList:bookingController.fetchDriverBookingList.bind(bookingController),
 fetchDriverBookingDetails:bookingController.fetchDriverBookingDetails.bind(bookingController),
 checkSecurityPin:bookingController.checkSecurityPin.bind(bookingController),
-// cancelRide:bookingController.cancelRide.bind(bookingController),
+cancelRide:bookingController.cancelRide.bind(bookingController),
 })
 
 // === Start gRPC Server ===  

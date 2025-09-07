@@ -189,12 +189,12 @@ export class BookingRepository
     }
   }
 
-  async cancelRide(user_id: string, ride_id: string) {
+  async cancelRide(userId: string, rideId: string) {
     try {
       const response = await bookingModel.findOneAndUpdate(
         {
-          ride_id: ride_id,
-          "user.user_id": user_id,
+          rideId: rideId,
+          "user.userId": userId,
           status: { $ne: "Cancelled" },
         },
         { $set: { status: "Cancelled" } },

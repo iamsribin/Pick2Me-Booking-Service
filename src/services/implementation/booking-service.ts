@@ -232,24 +232,36 @@ export class BookingService implements IBookingService {
         userId: updatedBooking.user.userId,
         bookingId: updatedBooking._id.toString(),
         driverId: updatedBooking.driver.driverId,
+        rideId: updatedBooking.rideId,
       };
 
-      RabbitMQPublisher.publish("driver.start.ride", payload);
+      RabbitMQPublisher.publish("driver.startRide", payload);
 
-      return { 
+      return {
         status: StatusCode.Accepted,
         message: "Pin verified successfully, ride started",
       };
     } catch (error) {
       console.log("Failed check security pin:", error);
       throw new Error(`Failed check security pin: ${(error as Error).message}`);
-    }          
+    }
   }
 
-  async cancelRide(user_id: string, ride_id: string): Promise<IResponse<null>> {
+  async cancelRide(userId: string, rideId: string): Promise<IResponse<null>> {
     try {
-      const response = await this._bookingRepo.cancelRide(user_id, ride_id);
-      return {
+      console.log("cancelRide=",{userId, rideId});
+      
+      const response = await this._bookingRepo.cancelRide(userId, rideId);
+
+      const payload = {
+        rideId: response.rideId,
+        driverId: response.driver.driverId,
+        userId: response.user.userId,
+      };
+
+      RabbitMQPublisher.publish("cancel.ride", payload);
+
+      return { 
         message: "successfully canceled",
         status: StatusCode.OK,
       };
