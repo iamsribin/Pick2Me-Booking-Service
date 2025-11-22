@@ -1,8 +1,3 @@
-// import App from "./app";
-
-// new App()
-
-
 import path from "path";
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
@@ -63,6 +58,9 @@ fetchDriverBookingList:bookingController.fetchDriverBookingList.bind(bookingCont
 fetchDriverBookingDetails:bookingController.fetchDriverBookingDetails.bind(bookingController),
 checkSecurityPin:bookingController.checkSecurityPin.bind(bookingController),
 cancelRide:bookingController.cancelRide.bind(bookingController),
+completeRide:bookingController.completeRide.bind(bookingController),
+MarkAsPaid: bookingController.MarkAsPaid.bind(bookingController),
+RollbackPayment: bookingController.RollbackPayment.bind(bookingController),
 })
 
 // === Start gRPC Server ===  

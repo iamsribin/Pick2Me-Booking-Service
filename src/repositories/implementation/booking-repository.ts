@@ -5,7 +5,6 @@ import { BaseRepository } from "./base-repository";
 import {
   CreateBookingReq,
   DriverAssignmentPayload,
-  UpdateAcceptRideReq,
 } from "../../types/booking/request";
 
 export class BookingRepository
@@ -64,7 +63,7 @@ export class BookingRepository
 
   async findBookingById(rideId: string): Promise<BookingInterface | null> {
     try {
-      return await bookingModel.findOne({ ride_id: rideId });
+      return await bookingModel.findOne({ rideId: rideId });
     } catch (error) {
       throw new Error(`Failed to find booking: ${(error as Error).message}`);
     }
@@ -149,21 +148,21 @@ export class BookingRepository
     }
   }
 
-  async fetchBookingListWithDriverId(id: string) {
-    try {
-      console.log("driverId===", id);
+async fetchBookingListWithDriverId(id: string, role: string) {
+  try {
+    const queryField = role === "user" ? "user.userId" : "driver.driverId";
 
-      const response = await bookingModel.find({
-        "driver.driverId": id,
-      });
+    const response = await bookingModel.find({
+      [queryField]: id,
+    });
 
-      return response;
-    } catch (error) {
-      console.log("error==", error);
-
-      throw new Error(`Failed to fetch bookings: ${(error as Error).message}`);
-    }
+    return response;
+  } catch (error) {
+    console.error("error==", error);
+    throw new Error(`Failed to fetch bookings: ${(error as Error).message}`);
   }
+}
+
 
   async fetchBookingListWithBookingId(id: string) {
     try {

@@ -49,6 +49,12 @@ const BookingSchema: Schema = new Schema({
   },
   pin: { type: Number },
   paymentMode: { type: String },
+  paymentStatus:{
+    type: String,
+    enum: ["Pending", "Failed", "Completed"],
+    default: "Pending",
+  },
+  paymentId: String,
   feedback: { type: String },
   rating: { type: Number },
 });

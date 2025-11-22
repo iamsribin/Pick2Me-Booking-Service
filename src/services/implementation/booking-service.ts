@@ -1,4 +1,3 @@
-import { BookingRepository } from "../../repositories/implementation/booking-repository";
 import { generatePIN } from "../../utils/generatePIN";
 import { IBookingService } from "../interfaces/i-booking-service";
 import {
@@ -11,21 +10,20 @@ import { StatusCode } from "../../types/common/status-code";
 import {
   CreateBookingReq,
   DriverAssignmentPayload,
-  UpdateAcceptRideReq,
 } from "../../types/booking/request";
 import { findNearbyDrivers } from "../../utils/find-near-by-drivers";
 import { DriverNotificationPayload } from "../../types/booking/driver-notification";
 import { RabbitMQPublisher } from "../../events/publisher";
+import { IBookingRepository } from "../../repositories/interfaces/i-booking-repository";
 
 export class BookingService implements IBookingService {
-  constructor(private _bookingRepo: BookingRepository) {}
+  constructor(private _bookingRepo: IBookingRepository) {}
 
   async createBooking(
     data: CreateBookingReq
   ): Promise<IResponse<CreateBookingResponseDTO>> {
     try {
-      console.log("createBooking", data);
-      // location: { lat: 11.1804416, lng: 75.9136256 },
+
       const drivers = await findNearbyDrivers(
         data.pickupLocation.latitude,
         data.pickupLocation.longitude,
@@ -38,7 +36,6 @@ export class BookingService implements IBookingService {
           message: "No drivers available for this booking request",
         };
       }
-      console.log("dataaa", data);
 
       const pin = generatePIN();
       const booking = await this._bookingRepo.createBooking(
@@ -48,10 +45,8 @@ export class BookingService implements IBookingService {
         pin
       );
 
-      // Generate unique request ID for idempotency
-      const requestId = `booking_${booking._id}_${Date.now()}`;
+      const requestId = `${booking._id}_${Date.now()}`;
 
-      // Prepare payload for real-time service
       const notificationPayload: DriverNotificationPayload = {
         bookingId: booking._id.toString(),
         rideId: booking.rideId,
@@ -81,7 +76,6 @@ export class BookingService implements IBookingService {
         createdAt: new Date(),
       };
 
-      console.log("sending request to realtiem", notificationPayload);
       await RabbitMQPublisher.publish("booking.request", notificationPayload);
 
       return {
@@ -121,10 +115,14 @@ export class BookingService implements IBookingService {
   }
 
   async fetchDriverBookingList(
-    id: string
+    id: string,
+    role: string
   ): Promise<IResponse<BookingListDTO[]>> {
     try {
-      const response = await this._bookingRepo.fetchBookingListWithDriverId(id);
+      const response = await this._bookingRepo.fetchBookingListWithDriverId(
+        id,
+        role
+      );
 
       const dtoList: BookingListDTO[] = response.map((booking) => ({
         _id: booking._id.toString(),
@@ -249,8 +247,6 @@ export class BookingService implements IBookingService {
 
   async cancelRide(userId: string, rideId: string): Promise<IResponse<null>> {
     try {
-      console.log("cancelRide=",{userId, rideId});
-      
       const response = await this._bookingRepo.cancelRide(userId, rideId);
 
       const payload = {
@@ -261,13 +257,78 @@ export class BookingService implements IBookingService {
 
       RabbitMQPublisher.publish("cancel.ride", payload);
 
-      return { 
+      return {
         message: "successfully canceled",
         status: StatusCode.OK,
       };
     } catch (error) {
       console.log("fetchDriverBookingList service", error);
       throw new Error(`Failed fetch vehicles: ${(error as Error).message}`);
+    }
+  }
+
+  async completeRide(
+    bookingId: string,
+    userId: string
+  ): Promise<IResponse<null>> {
+    try {
+      const updatedBooking = await this._bookingRepo.updateBookingStatus(
+        bookingId,
+        "Completed"
+      );
+
+      if (!updatedBooking) {
+        throw new Error("Booking not found or could not be updated");
+      }
+
+      const data = {
+        bookingId: updatedBooking._id.toString(),
+        userId: updatedBooking.user.userId,
+      };
+
+      RabbitMQPublisher.publish("ride.completed", data);
+
+      return {
+        status: StatusCode.OK,
+        message: "Ride marked as completed",
+      };
+    } catch (error) {
+      console.log("Failed complete ride:", error);
+      throw new Error(`Failed complete: ${(error as Error).message}`);
+    }
+  }
+
+  async markAsPaid(bookingId: string, paymentId: string) {
+    try {
+      const booking = await this._bookingRepo.findBookingById(bookingId);
+
+      if (!booking) throw new Error("Booking not found");
+
+      booking.paymentStatus = "Completed";
+      booking.paymentId = paymentId;
+      await booking.save();
+
+      return booking;
+    } catch (error: any) {
+      console.log("markAsPaid service", error);
+      throw new Error(error);
+    }
+  }
+
+  async rollbackPayment(bookingId: string) {
+    try {
+      const booking = await this._bookingRepo.findBookingById(bookingId);
+
+      if (!booking) throw new Error("Booking not found");
+
+      booking.paymentStatus = "Pending";
+      booking.paymentId = null;
+      await booking.save();
+
+      return booking;
+    } catch (error:any) {
+      console.log("rollbackPayment service", error);
+      throw new Error(error);
     }
   }
 }

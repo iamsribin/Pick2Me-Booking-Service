@@ -45,6 +45,8 @@ export interface BookingInterface extends mongoose.Document {
   price: number;
   date: Date;
   status: 'Pending' | 'Accepted' | 'InRide' | 'Completed' | 'Cancelled';
+  paymentStatus: 'Pending' | 'Failed' | 'Completed';
+  paymentId:string | null;
   pin: number;
   paymentMode: string;
   feedback?: string;

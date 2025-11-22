@@ -34,7 +34,7 @@ export interface IBookingController {
 
   handleDriverAcceptance(data: DriverAssignmentPayload): Promise<void>;
   fetchDriverBookingList(
-    call: ServerUnaryCall<{ id: string }, IResponse<BookingListDTO[]>>,
+    call: ServerUnaryCall<{ id: string, role:string}, IResponse<BookingListDTO[]>>,
     callback: sendUnaryData<IResponse<BookingListDTO[]>>
   ): Promise<void>;
 

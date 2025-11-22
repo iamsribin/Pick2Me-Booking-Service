@@ -5,10 +5,38 @@ service Ride {
     rpc fetchVehicles (Empty) returns (FetchVehiclesRes) {}
   //-------booking rpc -------
   rpc bookCab (BookCabReq) returns (commonRes);
-  rpc fetchDriverBookingList(id) returns (fetchDriverBookingListRes) {}
+  rpc fetchDriverBookingList(fetchDriverBookingListReq) returns (fetchDriverBookingListRes) {}
   rpc fetchDriverBookingDetails(id) returns (BookingResponse) {}
   rpc checkSecurityPin(checkSecurityPinReq) returns (commonRes) {}
   rpc cancelRide(cancelRideReq) returns (commonRes) {}
+  rpc completeRide(completeRideReq) returns (commonRes) {}
+
+  rpc MarkAsPaid (MarkAsPaidRequest) returns (MarkAsPaidRes);
+  rpc RollbackPayment (RollbackPaymentRequest) returns (MarkAsPaidRes);
+}
+
+message MarkAsPaidRequest {
+  string bookingId = 1;
+  string paymentId = 2;
+}
+
+message RollbackPaymentRequest {
+  string bookingId = 1;
+}
+
+message MarkAsPaidRes {
+  string status = 1; 
+  string message = 2;
+}
+
+message fetchDriverBookingListReq{
+  string id = 1;
+  string role = 2;
+}
+
+message completeRideReq{
+  string bookingId = 1;
+  string userId = 2;
 }
 
 message cancelRideReq{

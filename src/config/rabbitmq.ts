@@ -14,3 +14,5 @@ export async function createRabbit() {
 
   return { conn, ch };
 }
+
+
