@@ -29,13 +29,13 @@ const BookingSchema: Schema = new Schema({
     address: { type: String, required: true },
   },
 
-  pickupLocation: { type: String, required: true },
-  dropoffLocation: { type: String, required: true },
+  // pickupLocation: { type: String, required: true },
+  // dropoffLocation: { type: String, required: true },
 
-  driverCoordinates: {
-    latitude: { type: Number },
-    longitude: { type: Number },
-  },
+  // driverCoordinates: {
+  //   latitude: { type: Number },
+  //   longitude: { type: Number },
+  // },
 
   distance: { type: String },
   duration: { type: String },
