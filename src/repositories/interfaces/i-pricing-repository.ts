@@ -1,6 +1,4 @@
-import { PricingInterface } from "../../interfaces/interface";
-import { IBaseRepository } from "./i-base-repository";
+import { IMongoBaseRepository } from "@Pick2Me/shared/mongo";
+import { PricingInterface } from "@/interfaces/interface";
 
-export interface IPricingRepository extends IBaseRepository<PricingInterface>{
-
-}
+export type IPricingRepository = IMongoBaseRepository<PricingInterface>;

@@ -1,203 +1,210 @@
 import { IBookingController } from "../interfaces/i-booking-controller";
-import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
-import { IResponse } from "../../types/common/response";
-import {
-  BookingDetailsDto,
-  BookingListDTO,
-  CreateBookingResponseDTO,
-} from "../../dto/booking.dto";
-import { StatusCode } from "../../types/common/status-code";
-import { IBookingService } from "../../services/interfaces/i-booking-service";
+import { IBookingService } from "@/services/interfaces/i-booking-service";
+import { inject, injectable } from "inversify";
+import { TYPES } from "@/types/inversify-types";
+import { NextFunction, Request, Response } from "express";
 import {
   CreateBookingReq,
   DriverAssignmentPayload,
-} from "../../types/booking/request";
+} from "@/types/booking/request";
+import { BadRequestError } from "@Pick2Me/shared/errors";
+import { StatusCode } from "@Pick2Me/shared/interfaces";
 
+@injectable()
 export class BookingController implements IBookingController {
-  constructor(private _bookingService: IBookingService) {}
+  constructor(
+    @inject(TYPES.BookingService) private _bookingService: IBookingService
+  ) {}
 
-  async createBooking(
-    call: ServerUnaryCall<
-      CreateBookingReq,
-      IResponse<CreateBookingResponseDTO>
-    >,
-    callback: sendUnaryData<IResponse<CreateBookingResponseDTO>>
-  ): Promise<void> {
+  // POST /bookings
+  createBooking = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
-      const data = { ...call.request };
+      const data = req.body as CreateBookingReq;
+      // basic validation
+      if (!data || !data.userId)
+        throw BadRequestError("invalid booking payload");
 
       const response = await this._bookingService.createBooking(data);
-
-      callback(null, response);
-    } catch (error) {
-      callback(null, {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      });
+      res.status(+response.status).json(response);
+    } catch (err) {
+      next(err);
     }
-  }
+  };
 
-  async handleDriverAcceptance(data: DriverAssignmentPayload): Promise<void> {
+  // POST /bookings/driver-accept
+  // (keeps the original behavior but exposed as an HTTP endpoint that accepts driver assignment payload)
+  handleDriverAcceptance = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
-      await this._bookingService.handleDriverAcceptance(data);
-    } catch (error) {
-      console.log("error", error);
+      const payload = req.body as DriverAssignmentPayload;
+      if (!payload || !payload.bookingId || !payload.driver.driverId) {
+        throw BadRequestError("invalid driver assignment payload");
+      }
+
+      await this._bookingService.handleDriverAcceptance(payload);
+      res.status(StatusCode.OK).json({ message: "driver acceptance handled" });
+    } catch (err) {
+      next(err);
     }
-  }
+  };
 
-  async fetchDriverBookingList(
-    call: ServerUnaryCall<
-      { id: string; role: string },
-      IResponse<BookingListDTO[]>
-    >,
-    callback: sendUnaryData<IResponse<BookingListDTO[]>>
-  ): Promise<void> {
+  // GET /drivers/:id/bookings?role=driver&page=1&limit=10
+  fetchDriverBookingList = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
-      const { id, role } = call.request;
+      const id = String(req.params.id || req.query.id || "");
+      const role = String(req.query.role || "");
+      if (!id) throw BadRequestError("driver id required");
 
       const response = await this._bookingService.fetchDriverBookingList(
         id,
         role
       );
-
-      callback(null, response);
-    } catch (error) {
-      console.log(error);
-      callback(null, {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      });
+      res.status(StatusCode.OK).json(response);
+    } catch (err) {
+      next(err);
     }
-  }
+  };
 
-  async fetchDriverBookingDetails(
-    call: ServerUnaryCall<{ id: string }, IResponse<BookingDetailsDto>>,
-    callback: sendUnaryData<IResponse<BookingDetailsDto>>
-  ): Promise<void> {
+  // GET /bookings/:id
+  fetchDriverBookingDetails = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
-      const { id } = call.request;
+      const id = String(req.params.id || "");
+      if (!id) throw BadRequestError("booking id required");
 
       const response = await this._bookingService.fetchDriverBookingDetails(id);
-
-      callback(null, response);
-    } catch (error) {
-      console.log(error);
-      callback(null, {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      });
+      res.status(StatusCode.OK).json(response);
+    } catch (err) {
+      next(err);
     }
-  }
+  };
 
-  async checkSecurityPin(
-    call: ServerUnaryCall<
-      { securityPin: string; bookingId: string },
-      IResponse<null>
-    >,
-    callback: sendUnaryData<IResponse<null>>
-  ): Promise<void> {
+  // POST /bookings/:bookingId/check-pin
+  // body: { securityPin: string }
+  checkSecurityPin = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
-      const { securityPin, bookingId } = call.request;
+      const bookingId = String(
+        req.params.bookingId || req.body.bookingId || ""
+      );
+      const securityPin = String(req.body.securityPin || "");
+      if (!bookingId || !securityPin)
+        throw BadRequestError("bookingId and securityPin required");
 
       const response = await this._bookingService.checkSecurityPin(
         securityPin,
         bookingId
       );
-
-      callback(null, response);
-    } catch (error) {
-      console.log(error);
-      callback(null, {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      });
+      res.status(StatusCode.OK).json(response);
+    } catch (err) {
+      next(err);
     }
-  }
+  };
 
-  async cancelRide(
-    call: ServerUnaryCall<{ userId: string; rideId: string }, IResponse<null>>,
-    callback: sendUnaryData<IResponse<null>>
-  ): Promise<void> {
+  // POST /bookings/:rideId/cancel
+  // body: { userId: string }
+  cancelRide = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
-      const data = { ...call.request };
+      const rideId = String(req.params.rideId || req.body.rideId || "");
+      const userId = String(req.body.userId || req.query.userId || "");
+      if (!rideId || !userId)
+        throw BadRequestError("userId and rideId required");
 
-      const response = await this._bookingService.cancelRide(
-        data.userId,
-        data.rideId
+      const response = await this._bookingService.cancelRide(userId, rideId);
+      res.status(StatusCode.OK).json(response);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // POST /bookings/:bookingId/complete
+  // body: { userId: string }
+  completeRide = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const bookingId = String(
+        req.params.bookingId || req.body.bookingId || ""
       );
-
-      callback(null, response);
-    } catch (error) {
-      console.log(error);
-      callback(null, {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      });
-    }
-  }
-
-  async completeRide(
-    call: ServerUnaryCall<
-      { bookingId: string; userId: string },
-      IResponse<null>
-    >,
-    callback: sendUnaryData<IResponse<null>>
-  ): Promise<void> {
-    try {
-      const data = { ...call.request };
+      const userId = String(req.body.userId || req.query.userId || "");
+      if (!bookingId || !userId)
+        throw BadRequestError("bookingId and userId required");
 
       const response = await this._bookingService.completeRide(
-        data.bookingId,
-        data.userId
-      );
-
-      callback(null, response);
-    } catch (error) {
-      callback(null, {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      });
-    }
-  }
-
-  async MarkAsPaid(
-    call: ServerUnaryCall<
-      { bookingId: string; paymentId: string },
-      { status: string; message: string }
-    >,
-    callback: sendUnaryData<{ status: string; message: string }>
-  ): Promise<void> {
-    try {
-      const { bookingId, paymentId } = call.request;
-
-      const result = await this._bookingService.markAsPaid(
         bookingId,
-        paymentId
+        userId
       );
-
-      callback(null, { status: "success", message: "Booking marked as paid" });
-    } catch (error: any) {
-      console.log(error);
-
-      callback(null, { status: "error", message: error.message });
+      res.status(StatusCode.OK).json(response);
+    } catch (err) {
+      next(err);
     }
-  }
+  };
 
-  async RollbackPayment(
-    call: ServerUnaryCall<
-      { bookingId: string },
-      { status: string; message: string }
-    >,
-    callback: sendUnaryData<{ status: string; message: string }>
-  ): Promise<void> {
+  // POST /bookings/:bookingId/mark-paid
+  // body: { paymentId: string }
+  MarkAsPaid = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
-      const { bookingId } = call.request;
+      const bookingId = String(
+        req.params.bookingId || req.body.bookingId || ""
+      );
+      const paymentId = String(req.body.paymentId || "");
+      if (!bookingId || !paymentId)
+        throw BadRequestError("bookingId and paymentId required");
 
-      const result = await this._bookingService.rollbackPayment(bookingId);
-
-      callback(null, { status: "success", message: "Payment rolled back" });
-    } catch (error: any) {
-      callback(null, { status: "error", message: error.message });
+      await this._bookingService.markAsPaid(bookingId, paymentId);
+      res
+        .status(StatusCode.OK)
+        .json({ status: "success", message: "Booking marked as paid" });
+    } catch (err: any) {
+      next(err);
     }
-  }
+  };
+
+  // POST /bookings/:bookingId/rollback-payment
+  RollbackPayment = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const bookingId = String(
+        req.params.bookingId || req.body.bookingId || ""
+      );
+      if (!bookingId) throw BadRequestError("bookingId required");
+
+      await this._bookingService.rollbackPayment(bookingId);
+      res
+        .status(StatusCode.OK)
+        .json({ status: "success", message: "Payment rolled back" });
+    } catch (err: any) {
+      next(err);
+    }
+  };
 }

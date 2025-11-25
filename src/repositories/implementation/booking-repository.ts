@@ -1,14 +1,16 @@
-import bookingModel from "../../model/booking.model";
-import { BookingInterface } from "../../interfaces/interface";
+import bookingModel from "@/model/booking.model";
+import { BookingInterface } from "@/interfaces/interface";
 import { IBookingRepository } from "../interfaces/i-booking-repository";
-import { BaseRepository } from "./base-repository";
 import {
   CreateBookingReq,
   DriverAssignmentPayload,
-} from "../../types/booking/request";
+} from "@/types/booking/request";
+import { MongoBaseRepository } from "@Pick2Me/shared/mongo";
+import { injectable } from "inversify";
 
+@injectable()
 export class BookingRepository
-  extends BaseRepository<BookingInterface>
+  extends MongoBaseRepository<BookingInterface>
   implements IBookingRepository
 {
   constructor() {

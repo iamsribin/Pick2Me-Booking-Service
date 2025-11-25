@@ -1,58 +1,50 @@
-import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
-import {
-  CreateBookingReq,
-  DriverAssignmentPayload,
-} from "../../types/booking/request";
-import { IResponse } from "../../types/common/response";
-import {
-  BookingDetailsDto,
-  BookingListDTO,
-  CreateBookingResponseDTO,
-} from "../../dto/booking.dto";
-
-export interface ControllerResponse {
-  message: string;
-  data?: any;
-  status?: string;
-}
-
-export interface DriverDetails {
-  driverId: string;
-  distance: number;
-  rating: number;
-  cancelCount: number;
-}
+import { Request, Response, NextFunction } from "express";
 
 export interface IBookingController {
-  createBooking(
-    call: ServerUnaryCall<
-      CreateBookingReq,
-      IResponse<CreateBookingResponseDTO>
-    >,
-    callback: sendUnaryData<IResponse<CreateBookingResponseDTO>>
+  // POST /bookings
+  createBooking(req: Request, res: Response, next: NextFunction): Promise<void>;
+
+  // POST /bookings/driver-accept
+  handleDriverAcceptance(
+    req: Request,
+    res: Response,
+    next: NextFunction
   ): Promise<void>;
 
-  handleDriverAcceptance(data: DriverAssignmentPayload): Promise<void>;
+  // GET /drivers/:id/bookings
   fetchDriverBookingList(
-    call: ServerUnaryCall<{ id: string, role:string}, IResponse<BookingListDTO[]>>,
-    callback: sendUnaryData<IResponse<BookingListDTO[]>>
+    req: Request,
+    res: Response,
+    next: NextFunction
   ): Promise<void>;
 
+  // GET /bookings/:id
   fetchDriverBookingDetails(
-    call: ServerUnaryCall<{ id: string }, IResponse<BookingDetailsDto>>,
-    callback: sendUnaryData<IResponse<BookingDetailsDto>>
+    req: Request,
+    res: Response,
+    next: NextFunction
   ): Promise<void>;
 
+  // POST /bookings/:bookingId/check-pin
   checkSecurityPin(
-    call: ServerUnaryCall<
-      { securityPin: string; bookingId: string },
-      IResponse<null>
-    >,
-    callback: sendUnaryData<IResponse<null>>
-  ): Promise<void> 
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void>;
 
-  cancelRide(
-    call: ServerUnaryCall<{ userId: string; rideId: string }, IResponse<null>>,
-    callback: sendUnaryData<IResponse<null>>
+  // POST /bookings/:rideId/cancel
+  cancelRide(req: Request, res: Response, next: NextFunction): Promise<void>;
+
+  // POST /bookings/:bookingId/complete
+  completeRide(req: Request, res: Response, next: NextFunction): Promise<void>;
+
+  // POST /bookings/:bookingId/mark-paid
+  MarkAsPaid(req: Request, res: Response, next: NextFunction): Promise<void>;
+
+  // POST /bookings/:bookingId/rollback-payment
+  RollbackPayment(
+    req: Request,
+    res: Response,
+    next: NextFunction
   ): Promise<void>;
 }
