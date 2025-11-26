@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { BookingInterface } from "../interfaces/interface";
+import { BookingInterface } from "../interfaces/booking.interface";
 
 const BookingSchema: Schema = new Schema({
   rideId: { type: String, required: true },

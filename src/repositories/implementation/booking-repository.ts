@@ -1,5 +1,5 @@
 import bookingModel from "@/model/booking.model";
-import { BookingInterface } from "@/interfaces/interface";
+import { BookingInterface } from "@/interfaces/booking.interface";
 import { IBookingRepository } from "../interfaces/i-booking-repository";
 import {
   CreateBookingReq,

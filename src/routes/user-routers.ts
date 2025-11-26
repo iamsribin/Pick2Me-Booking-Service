@@ -1,10 +1,12 @@
+import { container } from "@/config/inversify-config";
+import { IBookingController } from "@/controller/interfaces/i-booking-controller";
+import { TYPES } from "@/types/inversify-types";
 import { Router } from "express";
-import { verifyGatewayJwt } from "@Pick2Me/shared/auth";
-import { catchAsync } from "@Pick2Me/shared/utils";
+
+const bookingController = container.get<IBookingController>(TYPES.BookingController);
 
 const userRouter = Router();
 
-//  All routes below require a valid admin gateway JWT
-userRouter.use(verifyGatewayJwt(true, process.env.GATEWAY_SHARED_SECRET!));
+userRouter.get("/users/list-online-drivers", bookingController.getNearbyDrivers);
 
 export { userRouter };

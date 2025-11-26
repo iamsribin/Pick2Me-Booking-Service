@@ -1,4 +1,4 @@
-import { Coordinates } from "../../interfaces/interface";
+import { Coordinates } from "../../interfaces/booking.interface";
 import { DriverDetails } from "../../utils/find-near-by-drivers";
 
 export interface DriverNotificationPayload {

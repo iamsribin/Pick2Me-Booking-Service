@@ -1,6 +1,6 @@
 import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
 import { IResponse } from "../../types/common/response";
-import { PricingInterface } from "../../interfaces/interface";
+import { PricingInterface } from "../../interfaces/booking.interface";
 
 export interface IVehicleController {
   fetchVehicles(

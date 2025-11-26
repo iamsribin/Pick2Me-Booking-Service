@@ -1,11 +1,15 @@
 import { IVehicleController } from "../interfaces/i-vehicle-controller";
 import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
-import { PricingInterface } from "@/interfaces/interface";
 import { IVehicleService } from "@/services/interfaces/i-vehicle-service";
 import { IResponse, StatusCode } from "@Pick2Me/shared/interfaces";
-
+import { PricingInterface } from "@/interfaces/price.interface";
+import { inject, injectable } from "inversify";
+import { TYPES } from "@/types/inversify-types";
+@injectable()
 export class VehicleController implements IVehicleController {
-  constructor(private _vehicleService: IVehicleService) {}
+  constructor(
+    @inject(TYPES.VehicleService) private _vehicleService: IVehicleService
+  ) {}
 
   async fetchVehicles(
     call: ServerUnaryCall<{}, IResponse<PricingInterface[]>>,

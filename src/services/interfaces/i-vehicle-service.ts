@@ -1,4 +1,4 @@
-import {  PricingInterface } from "../../interfaces/interface";
+import {  PricingInterface } from "../../interfaces/booking.interface";
 import { IResponse } from "../../types/common/response";
 
 export interface IVehicleService {

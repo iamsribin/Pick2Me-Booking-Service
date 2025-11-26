@@ -1,7 +1,7 @@
 import {
   BookingInterface,
   Coordinates,
-} from "../../interfaces/interface";
+} from "../../interfaces/booking.interface";
 import {
   CreateBookingReq,
   DriverAssignmentPayload,

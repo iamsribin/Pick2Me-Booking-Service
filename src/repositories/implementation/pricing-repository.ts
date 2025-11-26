@@ -1,5 +1,5 @@
+import { PricingInterface } from "@/interfaces/price.interface";
 import { PricingModel } from "../../model/pricing.model";
-import { PricingInterface } from "../../interfaces/interface";
 import { IPricingRepository } from "../interfaces/i-pricing-repository";
 import { MongoBaseRepository } from "@Pick2Me/shared/mongo";
 

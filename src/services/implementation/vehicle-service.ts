@@ -1,11 +1,13 @@
-import { PricingInterface } from "../../interfaces/interface";
 import { IVehicleService } from "../interfaces/i-vehicle-service";
-import { IResponse } from "../../types/common/response";
 import { IPricingRepository } from "../../repositories/interfaces/i-pricing-repository";
-import { StatusCode } from "../../types/common/status-code";
+import { IResponse, StatusCode } from "@Pick2Me/shared/interfaces";
+import { PricingInterface } from "@/interfaces/price.interface";
+import { inject, injectable } from "inversify";
+import { TYPES } from "@/types/inversify-types";
 
+@injectable()
 export class VehicleService implements IVehicleService {
-  constructor(private _pricingRepo: IPricingRepository) {}
+  constructor(@inject(TYPES.PricingRepository)private _pricingRepo: IPricingRepository) {}
 
   async getPrice(distanceKm: number, vehicleModel: string): Promise<number> {
     try {
@@ -28,7 +30,7 @@ export class VehicleService implements IVehicleService {
 
   async fetchVehicles(): Promise<IResponse<PricingInterface[]>> {
     try {
-      const response: PricingInterface[] = await this._pricingRepo.find({});
+      const response = await this._pricingRepo.find({});
       return {
         message: "vehicle list fetch",
         status: StatusCode.OK,

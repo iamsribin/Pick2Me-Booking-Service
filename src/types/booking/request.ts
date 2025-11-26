@@ -1,4 +1,4 @@
-import { Coordinates } from "../../interfaces/interface";
+import { Coordinates } from "../../interfaces/booking.interface";
 
 export interface CreateBookingReq {
   userId: string;
