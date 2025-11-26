@@ -10,6 +10,7 @@ import { RedisService } from "@Pick2Me/shared/redis";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/types/inversify-types";
 import { OnlineDriverPreview } from "@Pick2Me/shared/interfaces";
+import { PricingInterface } from "@/interfaces/price.interface";
 
 @injectable()
 export class BookingService implements IBookingService {
@@ -57,7 +58,6 @@ export class BookingService implements IBookingService {
         })
       );
 
-      
       return enriched.filter((x): x is OnlineDriverPreview => x !== null);
     } catch (error) {
       console.log(error);

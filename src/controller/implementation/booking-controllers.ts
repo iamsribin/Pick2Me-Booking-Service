@@ -39,7 +39,8 @@ export class BookingController implements IBookingController {
             drivers,
           }
         : testDrivers;
-
+      console.log("driversList",driversList);
+      
       res.status(StatusCode.OK).json(driversList);
     } catch (err) {
       console.log(err);

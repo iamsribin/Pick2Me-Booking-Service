@@ -6,4 +6,6 @@ export interface IBookingController {
     res: Response,
     next: NextFunction
   ): Promise<void>;
+
+
 }

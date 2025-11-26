@@ -4,10 +4,13 @@ import { IResponse, StatusCode } from "@Pick2Me/shared/interfaces";
 import { PricingInterface } from "@/interfaces/price.interface";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/types/inversify-types";
+import { InternalError } from "@Pick2Me/shared/errors";
 
 @injectable()
 export class VehicleService implements IVehicleService {
-  constructor(@inject(TYPES.PricingRepository)private _pricingRepo: IPricingRepository) {}
+  constructor(
+    @inject(TYPES.PricingRepository) private _pricingRepo: IPricingRepository
+  ) {}
 
   async getPrice(distanceKm: number, vehicleModel: string): Promise<number> {
     try {
@@ -37,7 +40,7 @@ export class VehicleService implements IVehicleService {
         data: response,
       };
     } catch (error) {
-      throw new Error((error as Error).message);
+      throw InternalError((error as Error).message);
     }
   }
 

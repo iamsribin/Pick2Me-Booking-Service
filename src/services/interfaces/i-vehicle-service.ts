@@ -1,5 +1,6 @@
-import {  PricingInterface } from "../../interfaces/booking.interface";
-import { IResponse } from "../../types/common/response";
+import { PricingInterface } from "@/interfaces/price.interface";
+import { IResponse } from "@Pick2Me/shared/interfaces";
+
 
 export interface IVehicleService {
   fetchVehicles(): Promise<IResponse<PricingInterface[]>>;
