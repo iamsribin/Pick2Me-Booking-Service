@@ -13,19 +13,38 @@ export class BookingController implements IBookingController {
     @inject(TYPES.BookingService) private _bookingService: IBookingService
   ) {}
 
-  async getNearbyDrivers(req: Request, res: Response, next: NextFunction) {
+  getNearbyDrivers = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
-      const lat = Number(req.query.lat || "");
-      const lng = Number(req.query.lng || "");
+      const lat = Number(req.query.lat ?? "");
+      const lng = Number(req.query.lng ?? "");
       const radius = Number(req.query.radius ?? 5);
-      console.log({ lat, lng, radius });
-      this._bookingService.getNearbyDriversForHomePage(lat, lng, radius);
 
-      res.status(StatusCode.OK).json(testDrivers);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        throw BadRequestError("lat and lng required");
+      }
+
+      const drivers = await this._bookingService.getNearbyDriversForHomePage(
+        lat,
+        lng,
+        radius
+      );
+
+      const driversList = drivers.length
+        ? {
+            success: true,
+            drivers,
+          }
+        : testDrivers;
+
+      res.status(StatusCode.OK).json(driversList);
     } catch (err) {
+      console.log(err);
+
       next(err);
     }
-  }
-
-
+  };
 }

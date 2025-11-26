@@ -9,50 +9,59 @@ import {
 import { RedisService } from "@Pick2Me/shared/redis";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/types/inversify-types";
+import { OnlineDriverPreview } from "@Pick2Me/shared/interfaces";
 
 @injectable()
 export class BookingService implements IBookingService {
-  constructor(@inject(TYPES.BookingRepository)private _bookingRepo: IBookingRepository) {}
+  constructor(
+    @inject(TYPES.BookingRepository) private _bookingRepo: IBookingRepository
+  ) {}
 
   async getNearbyDriversForHomePage(
     lat: number,
     lng: number,
-    radius: number
-  ): Promise<void> {
+    radiusKm: number
+  ): Promise<OnlineDriverPreview[]> {
     try {
-      if (!lat || !lng) {
-        throw BadRequestError("lat and lng required");
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        throw BadRequestError("lat and lng required and must be numbers");
       }
 
       const redisService = RedisService.getInstance();
 
-      const driversGeo = await redisService.findNearbyDrivers(lat, lng, radius);
-      console.log("driversGeo", driversGeo);
+      // findNearbyDrivers returns driverId + coords + distance
+      const driversGeo = await redisService.findNearbyDrivers(
+        lat,
+        lng,
+        radiusKm
+      );
 
-      const enrichedDrivers = await Promise.all(
-        driversGeo.map(async (item: any) => {
-          const driverId = String(item[0]);
-          const coords = Array.isArray(item[1])
-            ? item[1]
-            : item[item.length - 1];
-          const longitude = coords[0];
-          const latitude = coords[1];
+      if (!driversGeo || driversGeo.length === 0) return [];
 
-          const details = await redisService.getOnlineDriverDetails(driverId);
+      const enriched = await Promise.all(
+        driversGeo.map(async (d) => {
+          const details = await redisService.getOnlineDriverDetails(d.driverId);
+
           if (!details) return null;
 
-          return {
-            driverId,
-            lat: parseFloat(latitude),
-            lng: parseFloat(longitude),
+          const summary: OnlineDriverPreview = {
+            driverId: d.driverId,
+            lat: d.latitude,
+            lng: d.longitude,
+            distanceKm: d.distanceKm,
             vehicleModel: details.vehicleModel,
             name: details.name,
           };
+
+          return summary;
         })
       );
 
-      const availableDrivers = enrichedDrivers.filter((d) => d !== null);
+      
+      return enriched.filter((x): x is OnlineDriverPreview => x !== null);
     } catch (error) {
+      console.log(error);
+
       if (error instanceof HttpError) throw error;
       throw InternalError("something went wrong");
     }

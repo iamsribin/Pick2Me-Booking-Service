@@ -1,8 +1,9 @@
+import { OnlineDriverPreview } from "@Pick2Me/shared/interfaces";
 
 export interface IBookingService {
   getNearbyDriversForHomePage(
     lat: number,
     lng: number,
-    radius: number
-  ): Promise<void>;
+    radiusKm: number
+  ): Promise<OnlineDriverPreview[]>;
 }
