@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 
-export interface PricingInterface extends Document {
+export interface VehicleInterface extends Document {
   vehicleModel: string;
   image: string;
   minDistanceKm: string;

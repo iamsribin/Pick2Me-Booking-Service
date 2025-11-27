@@ -2,15 +2,14 @@ import { container } from "@/config/inversify-config";
 import { IBookingController } from "@/controller/interfaces/i-booking-controller";
 import { IVehicleController } from "@/controller/interfaces/i-vehicle-controller";
 import { TYPES } from "@/types/inversify-types";
-import { verifyGatewayJwt } from "@Pick2Me/shared/auth";
 import { Router } from "express";
 
 const bookingController = container.get<IBookingController>(TYPES.BookingController);
 const vehicleController = container.get<IVehicleController>(TYPES.VehicleController);
 
-const userRouter = Router();
+const publicRouter = Router();
 
-//  All routes below require a valid gateway gateway JWT
-userRouter.use(verifyGatewayJwt(true, process.env.GATEWAY_SHARED_SECRET!));
-userRouter.post("/me/book-cab",bookingController.bookRide);
-export { userRouter };
+publicRouter.get("/users/list-online-drivers", bookingController.getNearbyDrivers);
+publicRouter.get("/vehicles", vehicleController.fetchVehicles);
+
+export { publicRouter };

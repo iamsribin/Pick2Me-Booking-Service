@@ -16,7 +16,11 @@ export class VehicleController implements IVehicleController {
     next: NextFunction
   ): Promise<void> => {
     try {
+      console.log("ajfdalf");
+      
       const response = await this._vehicleService.fetchVehicles();
+      console.log(response);
+      
       res.status(+response.status).json(response.data);
     } catch (error) {
       next(error);

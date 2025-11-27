@@ -10,7 +10,7 @@ import { RedisService } from "@Pick2Me/shared/redis";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/types/inversify-types";
 import { OnlineDriverPreview } from "@Pick2Me/shared/interfaces";
-import { PricingInterface } from "@/interfaces/price.interface";
+import { BookingReq } from "@/types/booking/request";
 
 @injectable()
 export class BookingService implements IBookingService {
@@ -64,6 +64,27 @@ export class BookingService implements IBookingService {
 
       if (error instanceof HttpError) throw error;
       throw InternalError("something went wrong");
+    }
+  }
+
+  async bookRide(bookingReq: BookingReq): Promise<void> {
+    try {
+      const redisService = RedisService.getInstance();
+
+      // findNearbyDrivers returns driverId + coords + distance
+      const driversGeo = await redisService.findNearbyDrivers(
+        bookingReq.pickupLocation.latitude,
+        bookingReq.pickupLocation.longitude,
+        10
+      );
+
+      if (!driversGeo || driversGeo.length === 0)
+        throw BadRequestError("no drivers available nearby");
+      const pin = generatePIN();
+      
+      this._bookingRepo.createBooking(bookingReq);
+    } catch (error) {
+      if (error instanceof HttpError) throw error;
     }
   }
 }

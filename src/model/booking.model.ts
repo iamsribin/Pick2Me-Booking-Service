@@ -3,19 +3,26 @@ import { BookingInterface } from "../interfaces/booking.interface";
 
 const BookingSchema: Schema = new Schema({
   rideId: { type: String, required: true },
+  paymentId: { type: String },
+  pin: { type: Number, required: true },
+  distanceInfo: { distance: { type: String }, distanceInKm: { type: Number } },
+  duration: { type: String },
+  vehicleModel: { type: String, required: true },
+  price: { type: Number },
+  date: { type: Date, default: Date.now },
 
   user: {
     userId: { type: String, required: true },
-    userName: { type: String },
-    userNumber: { type: String },
-    userProfile: { type: String },
+    userName: { type: String, required: true },
+    userNumber: { type: String, required: true },
+    userProfile: { type: String, required: true },
   },
 
   driver: {
-    driverId: { type: String },
-    driverName: { type: String },
-    driverNumber: { type: String },
-    driverProfile: { type: String },
+    driverId: { type: String, required: true },
+    driverName: { type: String, required: true },
+    driverNumber: { type: String, required: true },
+    driverProfile: { type: String, required: true },
   },
 
   pickupCoordinates: {
@@ -23,38 +30,30 @@ const BookingSchema: Schema = new Schema({
     longitude: { type: Number, required: true },
     address: { type: String, required: true },
   },
-  dropoffCoordinates: {
+
+  dropOffCoordinates: {
     latitude: { type: Number, required: true },
     longitude: { type: Number, required: true },
     address: { type: String, required: true },
   },
 
-  // pickupLocation: { type: String, required: true },
-  // dropoffLocation: { type: String, required: true },
-
-  // driverCoordinates: {
-  //   latitude: { type: Number },
-  //   longitude: { type: Number },
-  // },
-
-  distance: { type: String },
-  duration: { type: String },
-  vehicleModel: { type: String, required: true },
-  price: { type: Number },
-  date: { type: Date, default: Date.now },
   status: {
     type: String,
     enum: ["Pending", "Accepted", "InRide", "Completed", "Cancelled"],
     default: "Pending",
   },
-  pin: { type: Number },
-  paymentMode: { type: String },
-  paymentStatus:{
+
+  paymentStatus: {
     type: String,
-    enum: ["Pending", "Failed", "Completed"],
-    default: "Pending",
+    enum: ["idle", "Pending", "Failed", "Completed"],
+    default: "idle",
   },
-  paymentId: String,
+
+  paymentMode: {
+    type: String,
+    enum: ["Cash", "Wallet", "Strip"],
+  },
+
   feedback: { type: String },
   rating: { type: Number },
 });

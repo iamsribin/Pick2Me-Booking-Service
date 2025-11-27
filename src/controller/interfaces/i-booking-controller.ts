@@ -7,5 +7,5 @@ export interface IBookingController {
     next: NextFunction
   ): Promise<void>;
 
-
+  bookRide(req: Request, res: Response, next: NextFunction): Promise<void>;
 }

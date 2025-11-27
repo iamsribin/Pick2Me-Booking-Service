@@ -11,7 +11,7 @@ import { VehicleService } from "@/services/implementation/vehicle-service";
 import { BookingRepository } from "@/repositories/implementation/booking-repository";
 import { BookingInterface } from "@/interfaces/booking.interface";
 import { IBookingRepository } from "@/repositories/interfaces/i-booking-repository";
-import { IPricingRepository } from "@/repositories/interfaces/i-pricing-repository";
+import { IVehicleRepository } from "@/repositories/interfaces/i-pricing-repository";
 import { PricingRepository } from "@/repositories/implementation/pricing-repository";
 
 const container = new Container();
@@ -31,7 +31,7 @@ container
   .to(BookingRepository);
 
   container
-  .bind<IPricingRepository>(TYPES.PricingRepository)
+  .bind<IVehicleRepository>(TYPES.PricingRepository)
   .to(PricingRepository);
 
   export {container};

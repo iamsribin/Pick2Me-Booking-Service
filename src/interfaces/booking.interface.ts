@@ -4,6 +4,13 @@ import mongoose, { Document } from "mongoose";
 export interface BookingInterface extends Document {
   _id: mongoose.Types.ObjectId;
   rideId: string;
+  paymentId: string;
+  pin: number;
+  distanceInfo: { distance: string; distanceInKm: number };
+  duration: string;
+  vehicleModel: string;
+  price: number;
+  date: Date;
 
   user: {
     userId: string;
@@ -22,16 +29,10 @@ export interface BookingInterface extends Document {
   pickupCoordinates: LocationCoordinates;
   dropOffCoordinates: LocationCoordinates;
 
-  distance: string;
-  duration: string;
-  vehicleModel: string;
-  price: number;
-  date: Date;
   status: "Pending" | "Accepted" | "InRide" | "Completed" | "Cancelled";
-  paymentStatus: "Pending" | "Failed" | "Completed";
-  paymentId: string | null;
-  pin: number;
-  paymentMode: string;
+  paymentStatus: "Pending" | "Failed" | "Completed" | "idle";
+  paymentMode: "Cash" | "Wallet" | "Strip";
+
   feedback?: string;
   rating?: number;
 }

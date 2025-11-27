@@ -1,4 +1,4 @@
 import { IMongoBaseRepository } from "@Pick2Me/shared/mongo";
-import { PricingInterface } from "@/interfaces/booking.interface";
+import { VehicleInterface } from "@/interfaces/vehicle.interface";
 
-export type IPricingRepository = IMongoBaseRepository<PricingInterface>;
+export type IVehicleRepository = IMongoBaseRepository<VehicleInterface>;
