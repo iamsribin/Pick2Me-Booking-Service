@@ -39,7 +39,6 @@ export class BookingController implements IBookingController {
             drivers,
           }
         : testDrivers;
-      console.log("driversList", driversList);
 
       res.status(StatusCode.OK).json(driversList);
     } catch (err) {
@@ -57,9 +56,10 @@ export class BookingController implements IBookingController {
     try {
       const bookingDetails = req.body;
       const user = req.gatewayUser!;
+
       bookingDetails.userId = user.id;
-      console.log("booking", bookingDetails);
-      this._bookingService.bookRide(bookingDetails);
+
+     await this._bookingService.bookRide(bookingDetails);
       res.status(StatusCode.OK).json("success");
     } catch (error) {
       next(error);

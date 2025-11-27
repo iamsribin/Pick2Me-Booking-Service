@@ -3,7 +3,6 @@ import { BookingInterface } from "@/interfaces/booking.interface";
 import { IBookingRepository } from "../interfaces/i-booking-repository";
 import { MongoBaseRepository } from "@Pick2Me/shared/mongo";
 import { injectable } from "inversify";
-import { BookingReq } from "@/types/booking/request";
 
 @injectable()
 export class BookingRepository
