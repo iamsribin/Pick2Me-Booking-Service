@@ -1,4 +1,4 @@
-import { generatePIN } from "@/utils/generatePIN";
+import { generatePIN, generateRideId } from "@/utils/generatePIN";
 import { IBookingService } from "../interfaces/i-booking-service";
 import { IBookingRepository } from "@/repositories/interfaces/i-booking-repository";
 import {
@@ -10,9 +10,9 @@ import { RedisService } from "@Pick2Me/shared/redis";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/types/inversify-types";
 import { OnlineDriverPreview } from "@Pick2Me/shared/interfaces";
-import { BookingReq } from "@/types/booking/request";
 import { fetchUserInfo } from "@/grpc/client/user-client";
-import { userInfo } from "os";
+import { BookingReq } from "@/types/booking";
+import { BookRideResponseDto } from "@/dto/booking.dto";
 
 @injectable()
 export class BookingService implements IBookingService {
@@ -69,7 +69,7 @@ export class BookingService implements IBookingService {
     }
   }
 
-  async bookRide(bookingReq: BookingReq): Promise<void> {
+  async bookRide(bookingReq: BookingReq): Promise<BookRideResponseDto> {
     try {
       const redisService = RedisService.getInstance();
 
@@ -83,12 +83,15 @@ export class BookingService implements IBookingService {
         throw BadRequestError("no drivers available nearby");
 
       const pin = generatePIN();
-      const userInfo = await fetchUserInfo(bookingReq.userId);
-      console.log("userInfo ent",userInfo);
 
-      await this._bookingRepo.create({
+      //GRPC call
+      const userInfo = await fetchUserInfo(bookingReq.userId);
+      const rideId = generateRideId();
+      
+      const rideData = await this._bookingRepo.create({
+        rideId,
         user: userInfo,
-        pin: pin,
+        pin,
         pickupCoordinates: bookingReq.pickupLocation,
         dropOffCoordinates: bookingReq.dropOffLocation,
         vehicleModel: bookingReq.vehicleModel,
@@ -96,6 +99,27 @@ export class BookingService implements IBookingService {
         duration: bookingReq.estimatedDuration,
         distanceInfo: bookingReq.distanceInfo,
       });
+
+      if (!rideData) throw InternalError("something went wrong");
+
+      const rideResponseDto: BookRideResponseDto = {
+        id: rideData._id.toString(),
+        distanceInfo: rideData.distanceInfo,
+        dropOffCoordinates: rideData.dropOffCoordinates,
+        pickupCoordinates: rideData.pickupCoordinates,
+        duration: rideData.duration,
+        pin: rideData.pin,
+        price: rideData.price,
+        user: rideData.user,
+        vehicleModel: rideData.vehicleModel,
+        date: rideData.date,
+        paymentMode: rideData.paymentMode,
+        paymentStatus: rideData.paymentStatus,
+        rideId: rideData.rideId,
+        status: rideData.status,
+      };
+
+      return rideResponseDto;
     } catch (error) {
       console.log(error);
 

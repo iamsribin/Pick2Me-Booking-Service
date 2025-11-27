@@ -59,8 +59,8 @@ export class BookingController implements IBookingController {
 
       bookingDetails.userId = user.id;
 
-     await this._bookingService.bookRide(bookingDetails);
-      res.status(StatusCode.OK).json("success");
+      const ride = await this._bookingService.bookRide(bookingDetails);
+      res.status(StatusCode.OK).json(ride);
     } catch (error) {
       next(error);
     }

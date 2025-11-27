@@ -54,17 +54,6 @@
 //   driverCoordinates: Coordinates
 // }
 
-import { LocationCoordinates } from "@Pick2Me/shared/interfaces";
-
-export interface BookingReq{
-  userId:string;
-  pickupLocation: LocationCoordinates;
-  dropOffLocation: LocationCoordinates;
-  vehicleModel: string;
-  estimatedPrice: number;
-  estimatedDuration: string;
-  distanceInfo: { distance: string, distanceInKm: number }
-}
 
 // {
 //   pickupLocation: {

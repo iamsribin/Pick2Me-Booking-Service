@@ -6,9 +6,9 @@ const BookingSchema: Schema = new Schema({
   paymentId: { type: String },
   pin: { type: Number, required: true },
   distanceInfo: { distance: { type: String }, distanceInKm: { type: Number } },
-  duration: { type: String },
+  duration: { type: String, required: true },
   vehicleModel: { type: String, required: true },
-  price: { type: Number },
+  price: { type: Number, required: true },
   date: { type: Date, default: Date.now },
 
   user: {
@@ -19,10 +19,10 @@ const BookingSchema: Schema = new Schema({
   },
 
   driver: {
-    driverId: { type: String, required: true },
-    driverName: { type: String, required: true },
-    driverNumber: { type: String, required: true },
-    driverProfile: { type: String, required: true },
+    driverId: { type: String},
+    driverName: { type: String},
+    driverNumber: { type: String },
+    driverProfile: { type: String },
   },
 
   pickupCoordinates: {
@@ -39,7 +39,7 @@ const BookingSchema: Schema = new Schema({
 
   status: {
     type: String,
-    enum: ["Pending", "Accepted", "InRide", "Completed", "Cancelled"],
+    enum: ["Pending", "Accepted", "InRide", "Completed", "Cancelled", "NoDriver"],
     default: "Pending",
   },
 
@@ -51,7 +51,8 @@ const BookingSchema: Schema = new Schema({
 
   paymentMode: {
     type: String,
-    enum: ["Cash", "Wallet", "Strip"],
+    enum: ["Cash", "Wallet", "Strip", ""],
+    default: ""
   },
 
   feedback: { type: String },
