@@ -13,6 +13,7 @@ import { OnlineDriverPreview } from "@Pick2Me/shared/interfaces";
 import { fetchUserInfo } from "@/grpc/client/user-client";
 import { BookingReq } from "@/types/booking";
 import { BookRideResponseDto } from "@/dto/booking.dto";
+import { EventProducer, eventProducer } from "@/events/publisher";
 
 @injectable()
 export class BookingService implements IBookingService {
@@ -87,7 +88,7 @@ export class BookingService implements IBookingService {
       //GRPC call
       const userInfo = await fetchUserInfo(bookingReq.userId);
       const rideId = generateRideId();
-      
+
       const rideData = await this._bookingRepo.create({
         rideId,
         user: userInfo,
@@ -118,6 +119,8 @@ export class BookingService implements IBookingService {
         rideId: rideData.rideId,
         status: rideData.status,
       };
+
+      await EventProducer.publishRideRequest(rideResponseDto);
 
       return rideResponseDto;
     } catch (error) {

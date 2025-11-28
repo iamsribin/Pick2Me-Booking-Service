@@ -12,7 +12,7 @@ const startServer = async () => {
 
     createRedisService(process.env.REDIS_URL as string);
 
-    // consumer.start()
+    // consumer.start();
 
     app.listen(process.env.PORT, () =>
       console.log(`Driver service running on port ${process.env.PORT}`)

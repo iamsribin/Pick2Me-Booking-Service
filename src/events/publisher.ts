@@ -1,16 +1,16 @@
-import { BookRideResponseDto } from '@/dto/booking.dto';
-import { EXCHANGES, RabbitMQ, ROUTING_KEYS } from '@Pick2Me/shared/messaging';
+import { BookRideResponseDto } from "@/dto/booking.dto";
+import { EXCHANGES, RabbitMQ, ROUTING_KEYS } from "@Pick2Me/shared/messaging";
 
 const url = process.env.RABBIT_URL!;
 
 export class EventProducer {
   static async publishRideRequest(rideData: BookRideResponseDto) {
-    await RabbitMQ.connect({ url, serviceName: 'driver-service' });
-    await RabbitMQ.setupExchange(EXCHANGES.DRIVER, 'topic');
+    await RabbitMQ.connect({ url, serviceName: "booking-service" });
+    await RabbitMQ.setupExchange(EXCHANGES.BOOKING, "topic");
 
     const notificationPayload = {
       data: rideData,
-      type: ROUTING_KEYS.NOTIFY_DOCUMENT_EXPIRE,
+      type: ROUTING_KEYS.NOTIFY_BOOK_RIDE_DRIVER,
     };
 
     await RabbitMQ.publish(
@@ -21,3 +21,5 @@ export class EventProducer {
     console.log(`[] 📤 Published  → ${notificationPayload}`);
   }
 }
+
+export const eventProducer = new EventProducer();
