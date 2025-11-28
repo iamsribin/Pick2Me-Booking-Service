@@ -1,7 +1,8 @@
-import {  PricingInterface } from "../../interfaces/interface";
-import { IResponse } from "../../types/common/response";
+import { VehicleInterface } from "@/interfaces/vehicle.interface";
+import { IResponse } from "@Pick2Me/shared/interfaces";
+
 
 export interface IVehicleService {
-  fetchVehicles(): Promise<IResponse<PricingInterface[]>>;
+  fetchVehicles(): Promise<IResponse<VehicleInterface[]>>;
   getPrice(distanceKm: number, vehicleModel: string): Promise<number>;
 }

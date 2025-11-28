@@ -1,26 +1,29 @@
 import { IVehicleController } from "../interfaces/i-vehicle-controller";
-import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
-import { IResponse } from "../../types/common/response";
-import { PricingInterface } from "../../interfaces/interface";
-import { StatusCode } from "../../types/common/status-code";
-import { IVehicleService } from "../../services/interfaces/i-vehicle-service";
+import { IVehicleService } from "@/services/interfaces/i-vehicle-service";
+import { inject, injectable } from "inversify";
+import { TYPES } from "@/types/inversify-types";
+import { NextFunction, Request, Response } from "express";
 
+@injectable()
 export class VehicleController implements IVehicleController {
-  constructor(private _vehicleService: IVehicleService) {}
+  constructor(
+    @inject(TYPES.VehicleService) private _vehicleService: IVehicleService
+  ) {}
 
-  async fetchVehicles(
-    call: ServerUnaryCall<{}, IResponse<PricingInterface[]>>,
-    callback: sendUnaryData<IResponse<PricingInterface[]>>
-  ): Promise<void> {
-    try {      
+  fetchVehicles = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      console.log("ajfdalf");
+      
       const response = await this._vehicleService.fetchVehicles();
-      callback(null, response);
+      console.log(response);
+      
+      res.status(+response.status).json(response.data);
     } catch (error) {
-      console.log(error);
-      callback(null, {
-        status: StatusCode.InternalServerError,
-        message: (error as Error).message,
-      });
-    } 
-  }
+      next(error);
+    }
+  };
 }

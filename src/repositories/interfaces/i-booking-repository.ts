@@ -1,54 +1,51 @@
 import {
   BookingInterface,
-  Coordinates,
-} from "../../interfaces/interface";
-import {
-  CreateBookingReq,
-  DriverAssignmentPayload,
-} from "../../types/booking/request";
+} from "@/interfaces/booking.interface";
+import { IMongoBaseRepository } from "@Pick2Me/shared/mongo";
 
-export interface IBookingRepository {
-  createBooking(
-    data: CreateBookingReq,
-    distanceKm: number,
-    price: number,
-    pin: number
-  ): Promise<BookingInterface>;
 
-  findBookingById(rideId: string): Promise<BookingInterface | null>;
+export type IBookingRepository = IMongoBaseRepository<BookingInterface>
 
-  updateBookingStatus(
-    id: string,
-    status: string
-  ): Promise<BookingInterface | null>;
+// {
+  // createBooking(
+  //   data: BookingReq,
+  //   pin: number
+  // ): Promise<BookingInterface>;
 
-  confirmRide(pin: number): Promise<BookingInterface | null>;
+  // findBookingById(rideId: string): Promise<BookingInterface | null>;
 
-  updateDriverCoordinates(
-    rideId: string,
-    coordinates: Coordinates
-  ): Promise<BookingInterface | null>;
+  // updateBookingStatus(
+  //   id: string,
+  //   status: string
+  // ): Promise<BookingInterface | null>;
 
-  updateAcceptedRide(
-    data: DriverAssignmentPayload
-  ): Promise<BookingInterface | null>;
+  // confirmRide(pin: number): Promise<BookingInterface | null>;
 
-  fetchBookingListWithDriverId(
-    id: string,
-    role: string
-  ): Promise<BookingInterface[]>;
+  // updateDriverCoordinates(
+  //   rideId: string,
+  //   coordinates: Coordinates
+  // ): Promise<BookingInterface | null>;
 
-  fetchBookingListWithBookingId(
-    id: string
-  ): Promise<BookingInterface | null>;
+  // updateAcceptedRide(
+  //   data: DriverAssignmentPayload
+  // ): Promise<BookingInterface | null>;
 
-  verifyPinAndStartRide(
-    bookingId: string,
-    pin: number
-  ): Promise<BookingInterface | null>;
+  // fetchBookingListWithDriverId(
+  //   id: string,
+  //   role: string
+  // ): Promise<BookingInterface[]>;
 
-  cancelRide(
-    userId: string,
-    rideId: string
-  ): Promise<BookingInterface>;
-}
+  // fetchBookingListWithBookingId(
+  //   id: string
+  // ): Promise<BookingInterface | null>;
+
+  // verifyPinAndStartRide(
+  //   bookingId: string,
+  //   pin: number
+  // ): Promise<BookingInterface | null>;
+
+  // cancelRide(
+  //   userId: string,
+  //   rideId: string
+  // ): Promise<BookingInterface>;
+// }

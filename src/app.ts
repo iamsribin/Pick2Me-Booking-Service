@@ -1,25 +1,19 @@
-// import { Application } from "express";
-// import connectDB from "./config/mongo";
-// import RabbitMQClient from "./rabbitMq/client";
-// import express from "express";
-// import * as dotenv from 'dotenv'
-// // import BookingSagaHandler from './services/saga/booking.saga.handler';
-// import RabbitMQPublisher from "./utils/rabbitmq.publisher";
+import express from "express";
+import cookieParser from "cookie-parser";
+import { errorHandler } from "@Pick2Me/shared/errors";
+import { adminRouter } from "./routes/admin-roures";
+import { publicRouter } from "./routes/public-routers";
+import { userRouter } from "./routes/user-routers";
 
-// (async () => {
-// })();
-// class App{
-//     public app: Application;
-//     constructor() {
-//       this.app=express()
-//        RabbitMQPublisher.init();
-//       // BookingSagaHandler.listen();
-//       this.app.listen(process.env.RIDE_PORT,()=>{
-//         console.log(`server  http://localhost:${process.env.RIDE_PORT}`);
-//       })
-//         RabbitMQClient.initialize();
-//         connectDB()
-//     }
-// }
+const app = express();
 
-// export default App
+app.use(express.json());
+app.use(cookieParser());
+
+app.use("/", publicRouter);
+app.use("/", userRouter);
+app.use("/admin", adminRouter);
+
+app.use(errorHandler);
+
+export default app;

@@ -1,12 +1,10 @@
-import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
-import { IResponse } from "../../types/common/response";
-import { PricingInterface } from "../../interfaces/interface";
+import { NextFunction, Request, Response } from "express";
 
 export interface IVehicleController {
-  fetchVehicles(
-    call: ServerUnaryCall<{}, IResponse<PricingInterface[]>>,
-    callback: sendUnaryData<IResponse<PricingInterface[]>>
+    fetchVehicles(
+    req: Request,
+    res: Response,
+    next: NextFunction
   ): Promise<void>;
-
   
 }

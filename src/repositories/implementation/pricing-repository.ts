@@ -1,13 +1,13 @@
-import { PricingModel } from "../../model/pricing.model";
-import { PricingInterface } from "../../interfaces/interface";
-import { BaseRepository } from "./base-repository";
-import { IPricingRepository } from "../interfaces/i-pricing-repository";
+import { VehicleInterface } from "@/interfaces/vehicle.interface";
+import { VehicleModel } from "../../model/vehicle.model";
+import { IVehicleRepository } from "../interfaces/i-pricing-repository";
+import { MongoBaseRepository } from "@Pick2Me/shared/mongo";
 
 export class PricingRepository
-  extends BaseRepository<PricingInterface>
-  implements IPricingRepository
+  extends MongoBaseRepository<VehicleInterface>
+  implements IVehicleRepository
 {
   constructor() {
-    super(PricingModel);
+    super(VehicleModel);
   }
 }

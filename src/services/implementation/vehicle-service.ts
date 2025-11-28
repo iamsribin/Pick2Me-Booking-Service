@@ -1,15 +1,20 @@
-import { PricingInterface } from "../../interfaces/interface";
 import { IVehicleService } from "../interfaces/i-vehicle-service";
-import { IResponse } from "../../types/common/response";
-import { IPricingRepository } from "../../repositories/interfaces/i-pricing-repository";
-import { StatusCode } from "../../types/common/status-code";
+import { IVehicleRepository } from "../../repositories/interfaces/i-pricing-repository";
+import { IResponse, StatusCode } from "@Pick2Me/shared/interfaces";
+import { VehicleInterface } from "@/interfaces/vehicle.interface";
+import { inject, injectable } from "inversify";
+import { TYPES } from "@/types/inversify-types";
+import { InternalError } from "@Pick2Me/shared/errors";
 
+@injectable()
 export class VehicleService implements IVehicleService {
-  constructor(private _pricingRepo: IPricingRepository) {}
+  constructor(
+    @inject(TYPES.PricingRepository) private _vehicleRepo: IVehicleRepository
+  ) {}
 
   async getPrice(distanceKm: number, vehicleModel: string): Promise<number> {
     try {
-      const config = await this._pricingRepo.findOne({ vehicleModel });
+      const config = await this._vehicleRepo.findOne({ vehicleModel });
       if (!config) {
         throw new Error(`Pricing configuration not found for ${vehicleModel}`);
       }
@@ -26,16 +31,16 @@ export class VehicleService implements IVehicleService {
     }
   }
 
-  async fetchVehicles(): Promise<IResponse<PricingInterface[]>> {
+  async fetchVehicles(): Promise<IResponse<VehicleInterface[]>> {
     try {
-      const response: PricingInterface[] = await this._pricingRepo.find({});
+      const response = await this._vehicleRepo.find({});
       return {
         message: "vehicle list fetch",
         status: StatusCode.OK,
         data: response,
       };
     } catch (error) {
-      throw new Error((error as Error).message);
+      throw InternalError((error as Error).message);
     }
   }
 

@@ -1,76 +1,96 @@
+// export interface BookingListDTO {
+//   _id: string;
+//   pickupLocation: string;
+//   dropoffLocation: string;
+//   distance: string | null;
+//   price: number | null;
+//   date: Date;
+//   status: string;
+// }
 
-export interface BookingListDTO {
-  _id: string;
-  pickupLocation: string;
-  dropoffLocation: string;
-  distance: string | null;
-  price: number | null;
-  date: Date;
-  status: string;
-}
+// // src/dto/booking/booking-response.dto.ts
+// export interface BookingDetailsDto {
+//   id: string;
 
-// src/dto/booking/booking-response.dto.ts
-export interface BookingDetailsDto {
+//   user: {
+//     userId: string;
+//     userName: string;
+//     userNumber?: string;
+//   };
+
+//   driver?: {
+//     driverId: string;
+//     driverName: string;
+//     driverNumber: string;
+//   };
+
+//   pickupLocation: string;
+//   dropoffLocation: string;
+//   pickupCoordinates: {
+//     latitude: number;
+//     longitude: number;
+//   };
+//   dropoffCoordinates: {
+//     latitude: number;
+//     longitude: number;
+//   };
+
+//   status: string;
+//   price?: number;
+//   date: string;
+//   paymentMode?: string;
+//   pin?: number;
+//   feedback?: string;
+//   rating?: number;
+
+//   distance?: string;
+//   duration?: string;
+//   vehicleModel?: string;
+// }
+
+// export interface CreateBookingResponseDTO {
+//     userData: {
+//     userId: string;
+//     userName: string;
+//     userNumber: string;
+//     userProfile: string;
+//   };
+//   booking: { id: string; rideId: string; status: string };
+//   userPickupCoordinators: {
+//     address: string;
+//     latitude: number;
+//     longitude: number;
+//   };
+//   userDropCoordinators: {
+//     address: string;
+//     latitude: number;
+//     longitude: number;
+//   };
+//   distance: string;
+//   price: number;
+//   duration: string;
+//   pin: number;
+//   message?: string;
+// }
+
+
+import { UserInfo } from "@/types/booking";
+import { LocationCoordinates } from "@Pick2Me/shared/interfaces";
+
+export interface BookRideResponseDto {
   id: string;
-
-  user: {
-    userId: string;
-    userName: string;
-    userNumber?: string;
-  };
-
-  driver?: {
-    driverId: string;
-    driverName: string;
-    driverNumber: string;
-  };
-
-  pickupLocation: string;
-  dropoffLocation: string;
-  pickupCoordinates: {
-    latitude: number;
-    longitude: number;
-  };
-  dropoffCoordinates: {
-    latitude: number;
-    longitude: number;
-  };
-
-  status: string;
-  price?: number;
-  date: string;
-  paymentMode?: string;
-  pin?: number;
-  feedback?: string;
-  rating?: number;
-
-  distance?: string;
-  duration?: string;
-  vehicleModel?: string;
-}
-
-
-export interface CreateBookingResponseDTO {
-    userData: {
-    userId: string;
-    userName: string;
-    userNumber: string;
-    userProfile: string;
-  };
-  booking: { id: string; rideId: string; status: string };
-  userPickupCoordinators: {
-    address: string;
-    latitude: number;
-    longitude: number;
-  };
-  userDropCoordinators: {
-    address: string;
-    latitude: number;
-    longitude: number;
-  };
-  distance: string;
+  user: UserInfo;
+  pin: number;
+  pickupCoordinates: LocationCoordinates;
+  dropOffCoordinates: LocationCoordinates;
+  vehicleModel: string;
   price: number;
   duration: string;
-  pin: number;
-  message?: string;
+  distanceInfo: { distance: string; distanceInKm: number };
+
+  status: "Pending" | "Accepted" | "InRide" | "Completed" | "Cancelled";
+  paymentStatus: "Pending" | "Failed" | "Completed" | "idle";
+  paymentMode: "Cash" | "Wallet" | "Strip";
+  rideId: string;
+  date: Date;
 }
