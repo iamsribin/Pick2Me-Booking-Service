@@ -11,7 +11,7 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "@/types/inversify-types";
 import { OnlineDriverPreview } from "@Pick2Me/shared/interfaces";
 import { fetchUserInfo } from "@/grpc/client/user-client";
-import { BookingReq } from "@/types/booking";
+import { BookingReq, RideAcceptReq } from "@/types/booking";
 import { BookRideResponseDto } from "@/dto/booking.dto";
 import { EventProducer, eventProducer } from "@/events/publisher";
 
@@ -130,4 +130,43 @@ export class BookingService implements IBookingService {
       throw InternalError("something went wrong");
     }
   }
+
+async rideAccept(driverData: RideAcceptReq): Promise<void> {
+  try {
+    const normalizedStatus =
+      driverData.status === "ACCEPT" ? "Accepted" : driverData.status;
+
+    const driverPayload = {
+      driverId: driverData.driver.driverId,
+      driverName: driverData.driver.driverName,
+      driverNumber: driverData.driver.driverNumber,
+      driverProfile: driverData.driver.driverProfile,
+    };
+
+    const filter = {
+      _id: driverData.id,        
+      status: "Pending",         
+    };
+
+    const update = {
+      $set: {
+        driver: driverPayload,
+        status: normalizedStatus,
+      },
+    };
+
+    const updated = await this._bookingRepo.updateOne(filter as any, update as any);
+
+    if (!updated) {
+      throw BadRequestError("Ride not found or not in Pending state");
+    }
+
+  } catch (err) {
+    console.log(err);
+    
+    if (err instanceof HttpError) throw err;
+    throw InternalError("something went wrong while accepting the ride");
+  }
+}
+
 }

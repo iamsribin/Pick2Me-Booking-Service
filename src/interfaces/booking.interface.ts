@@ -18,7 +18,6 @@ export interface BookingInterface extends Document {
     userNumber: string;
     userProfile: string;
   };
-
   driver: {
     driverId: string;
     driverName: string;
