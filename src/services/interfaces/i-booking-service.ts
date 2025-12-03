@@ -10,4 +10,5 @@ export interface IBookingService {
   ): Promise<OnlineDriverPreview[]>;
   bookRide(bookingReq: BookingReq): Promise<BookRideResponseDto>;
   rideAccept(driverData: RideAcceptReq): Promise<void>;
+  cancelRide(rideId:string): Promise<void>;
 }

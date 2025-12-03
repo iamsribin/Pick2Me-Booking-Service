@@ -32,8 +32,8 @@ export class EventConsumer {
             bookingService.rideAccept(msg.data);
           break;
 
-        case ROUTING_KEYS.NOTIFY_BOOK_RIDE_DRIVER:
-          console.log("NOTIFY_BOOK_RIDE_DRIVER:", msg);
+        case ROUTING_KEYS.CANCEL_RIDE:
+          bookingService.cancelRide(msg.rideId);
           break;
         default:
           console.warn("Unknown message:", msg);
