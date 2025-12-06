@@ -33,7 +33,7 @@ export class EventConsumer {
           break;
 
         case ROUTING_KEYS.CANCEL_RIDE:
-          bookingService.cancelRide(msg.rideId);
+          bookingService.cancelRide(msg._id);
           break;
         default:
           console.warn("Unknown message:", msg);

@@ -2,7 +2,7 @@ import { IBookingController } from "../interfaces/i-booking-controller";
 import { IBookingService } from "@/services/interfaces/i-booking-service";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/types/inversify-types";
-import { NextFunction, Request, Response } from "express";
+import e, { NextFunction, Request, Response } from "express";
 import { BadRequestError } from "@Pick2Me/shared/errors";
 import { StatusCode } from "@Pick2Me/shared/interfaces";
 import { testDrivers } from "@/utils/testDrivers";
@@ -61,6 +61,20 @@ export class BookingController implements IBookingController {
 
       const ride = await this._bookingService.bookRide(bookingDetails);
       res.status(StatusCode.OK).json(ride);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+   checkSecurityPin =async(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void>=> {
+    try {
+      const { enteredPin, _id } = req.body;
+      await this._bookingService.checkSecurityPin(Number(enteredPin), _id);
+      res.status(StatusCode.OK).json("success");
     } catch (error) {
       next(error);
     }

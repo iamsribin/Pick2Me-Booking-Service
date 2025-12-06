@@ -13,4 +13,5 @@ const userRouter = Router();
 //  All routes below require a valid gateway gateway JWT
 userRouter.use(verifyGatewayJwt(true, process.env.GATEWAY_SHARED_SECRET!));
 userRouter.post("/me/book-cab",bookingController.bookRide);
+userRouter.post("/check-security-pin",bookingController.checkSecurityPin);
 export { userRouter };

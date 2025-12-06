@@ -20,6 +20,23 @@ export class EventProducer {
     );
     console.log(`[] 📤 Published  → ${notificationPayload}`);
   }
+
+    static async publishRideStart(rideData:any) {
+    await RabbitMQ.connect({ url, serviceName: "booking-service" });
+    await RabbitMQ.setupExchange(EXCHANGES.BOOKING, "topic");
+
+    const notificationPayload = {
+      data: rideData,
+      type: ROUTING_KEYS.NOTIFY_RIDE_START,
+    };
+
+    await RabbitMQ.publish(
+      EXCHANGES.BOOKING,
+      ROUTING_KEYS.NOTIFY_RIDE_START,
+      notificationPayload
+    );
+    console.log(`[] 📤 Published  → ${notificationPayload}`);
+  }
 }
 
 export const eventProducer = new EventProducer();

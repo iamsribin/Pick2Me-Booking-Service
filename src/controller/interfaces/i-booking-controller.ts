@@ -8,4 +8,5 @@ export interface IBookingController {
   ): Promise<void>;
 
   bookRide(req: Request, res: Response, next: NextFunction): Promise<void>;
+  checkSecurityPin(req: Request, res: Response, next: NextFunction): Promise<void>;
 }

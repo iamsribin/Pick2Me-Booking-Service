@@ -170,7 +170,33 @@ export class BookingService implements IBookingService {
       throw InternalError("something went wrong while accepting the ride");
     }
   }
-  async cancelRide(rideId: string): Promise<void> {
-    await this._bookingRepo.updateOne({ _id: rideId }, { status: "canceled" });
+
+  async checkSecurityPin(enteredPin: number, _id: string): Promise<void> {
+    try {
+      if (!enteredPin || !_id) throw BadRequestError("some fields are missing");
+
+      const ride = await this._bookingRepo.findById(_id);
+      if (!ride) throw BadRequestError("no ride found");
+      console.log(ride.pin ,"===", enteredPin);
+      
+      if (ride.pin === enteredPin) {
+        this._bookingRepo.update(_id, { status: "InRide" });
+        const rideDetails = {
+          userId: ride.user.userId,
+          driverId: ride.driver.driverId,
+          status: "InRide",
+        };
+        await EventProducer.publishRideStart(rideDetails);
+      } else {
+        throw BadRequestError("wrong pin");
+      }
+    } catch (error) {
+      if (error instanceof HttpError) throw error;
+      throw InternalError("something went wrong");
+    }
+  }
+
+  async cancelRide(_id: string): Promise<void> {
+    await this._bookingRepo.update(_id, { status: "Cancelled" });
   }
 }
