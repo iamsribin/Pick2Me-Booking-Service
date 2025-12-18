@@ -19,7 +19,7 @@ import { EventProducer } from "@/events/publisher";
 export class BookingService implements IBookingService {
   constructor(
     @inject(TYPES.BookingRepository) private _bookingRepo: IBookingRepository
-  ) {}
+  ) { }
 
   async getNearbyDriversForHomePage(
     lat: number,
@@ -177,8 +177,8 @@ export class BookingService implements IBookingService {
 
       const ride = await this._bookingRepo.findById(_id);
       if (!ride) throw BadRequestError("no ride found");
-      console.log(ride.pin ,"===", enteredPin);
-      
+      console.log(ride.pin, "===", enteredPin);
+
       if (ride.pin === enteredPin) {
         this._bookingRepo.update(_id, { status: "InRide" });
         const rideDetails = {
@@ -190,6 +190,43 @@ export class BookingService implements IBookingService {
       } else {
         throw BadRequestError("wrong pin");
       }
+    } catch (error) {
+      if (error instanceof HttpError) throw error;
+      throw InternalError("something went wrong");
+    }
+  }
+
+  async getBookingData(userId: string, role: string): Promise<BookRideResponseDto | null> {
+    try {
+      const userData = role === "User" ? `user.userId` : "driver.driverId";
+      const rideData = await this._bookingRepo.findOne(
+        {
+         [userData]: userId,
+          status: { $in: ["Pending", "Accepted", "InRide"] },
+        },
+        { sort: { date: -1 } }
+      );
+
+      if (!rideData) return null;
+
+      const rideResponseDto: BookRideResponseDto = {
+        id: rideData._id.toString(),
+        distanceInfo: rideData.distanceInfo,
+        dropOffCoordinates: rideData.dropOffCoordinates,
+        pickupCoordinates: rideData.pickupCoordinates,
+        duration: rideData.duration,
+        pin: rideData.pin,
+        price: rideData.price,
+        driver: rideData.driver,
+        user: rideData.user,
+        vehicleModel: rideData.vehicleModel,
+        date: rideData.date,
+        paymentMode: rideData.paymentMode,
+        paymentStatus: rideData.paymentStatus,
+        rideId: rideData.rideId,
+        status: rideData.status,
+      };
+      return rideResponseDto;
     } catch (error) {
       if (error instanceof HttpError) throw error;
       throw InternalError("something went wrong");

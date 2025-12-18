@@ -7,8 +7,15 @@ export interface UserInfo {
   userProfile: string;
 }
 
-export interface BookingReq{
-  userId:string;
+export interface DriverInfo {
+  driverId: string,
+  driverName: string,
+  driverNumber: string,
+  driverProfile: string
+}
+
+export interface BookingReq {
+  userId: string;
   pickupLocation: LocationCoordinates;
   dropOffLocation: LocationCoordinates;
   vehicleModel: string;
@@ -17,13 +24,8 @@ export interface BookingReq{
   distanceInfo: { distance: string, distanceInKm: number }
 }
 
-export interface RideAcceptReq{
+export interface RideAcceptReq {
   id: string,
-  driver: {
-    driverId: string,
-    driverName: string,
-    driverNumber: string,
-    driverProfile: string
-  },
+  driver: DriverInfo,
   status: string
 }

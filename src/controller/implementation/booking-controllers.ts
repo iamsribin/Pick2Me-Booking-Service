@@ -6,12 +6,13 @@ import e, { NextFunction, Request, Response } from "express";
 import { BadRequestError } from "@Pick2Me/shared/errors";
 import { StatusCode } from "@Pick2Me/shared/interfaces";
 import { testDrivers } from "@/utils/testDrivers";
+import { RedisService } from "@Pick2Me/shared/redis";
 
 @injectable()
 export class BookingController implements IBookingController {
   constructor(
     @inject(TYPES.BookingService) private _bookingService: IBookingService
-  ) {}
+  ) { }
 
   getNearbyDrivers = async (
     req: Request,
@@ -35,9 +36,9 @@ export class BookingController implements IBookingController {
 
       const driversList = drivers.length
         ? {
-            success: true,
-            drivers,
-          }
+          success: true,
+          drivers,
+        }
         : testDrivers;
 
       res.status(StatusCode.OK).json(driversList);
@@ -66,11 +67,34 @@ export class BookingController implements IBookingController {
     }
   };
 
-   checkSecurityPin =async(
+  getBookingData = async (
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<void>=> {
+  ): Promise<void> => {
+    try {
+      const user = req.gatewayUser!;
+      const rideData = await this._bookingService.getBookingData(user.id,user.role);
+      if (rideData) {
+        const driverLocation = await RedisService.getInstance().getDriverGeoPosition(rideData.driver?.driverId || '');
+        const data = {
+          rideData,
+          driverLocation: driverLocation || null
+        };        
+        res.status(StatusCode.OK).json(data);
+      } else {
+        res.status(StatusCode.Continue).json(null);
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  checkSecurityPin = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const { enteredPin, _id } = req.body;
       await this._bookingService.checkSecurityPin(Number(enteredPin), _id);

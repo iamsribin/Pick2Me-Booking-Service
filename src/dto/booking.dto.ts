@@ -74,7 +74,7 @@
 // }
 
 
-import { UserInfo } from "@/types/booking";
+import { DriverInfo, UserInfo } from "@/types/booking";
 import { LocationCoordinates } from "@Pick2Me/shared/interfaces";
 
 export interface BookRideResponseDto {
@@ -87,7 +87,7 @@ export interface BookRideResponseDto {
   price: number;
   duration: string;
   distanceInfo: { distance: string; distanceInKm: number };
-
+  driver?: DriverInfo;
   status: "Pending" | "Accepted" | "InRide" | "Completed" | "Cancelled";
   paymentStatus: "Pending" | "Failed" | "Completed" | "idle";
   paymentMode: "Cash" | "Wallet" | "Strip";

@@ -14,4 +14,5 @@ const userRouter = Router();
 userRouter.use(verifyGatewayJwt(true, process.env.GATEWAY_SHARED_SECRET!));
 userRouter.post("/me/book-cab",bookingController.bookRide);
 userRouter.post("/check-security-pin",bookingController.checkSecurityPin);
+userRouter.get("/me/booking-data",bookingController.getBookingData);
 export { userRouter };

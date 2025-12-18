@@ -16,7 +16,7 @@ const BookingSchema: Schema = new Schema({
     userName: { type: String, required: true },
     userNumber: { type: String, required: true },
     userProfile: { type: String, required: true },
-  },
+},
 
   driver: {
     driverId: { type: String},
