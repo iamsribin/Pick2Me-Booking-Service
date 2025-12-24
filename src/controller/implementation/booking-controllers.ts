@@ -74,13 +74,13 @@ export class BookingController implements IBookingController {
   ): Promise<void> => {
     try {
       const user = req.gatewayUser!;
-      const rideData = await this._bookingService.getBookingData(user.id,user.role);
+      const rideData = await this._bookingService.getBookingData(user.id, user.role);
       if (rideData) {
         const driverLocation = await RedisService.getInstance().getDriverGeoPosition(rideData.driver?.driverId || '');
         const data = {
           rideData,
           driverLocation: driverLocation || null
-        };        
+        };
         res.status(StatusCode.OK).json(data);
       } else {
         res.status(StatusCode.Continue).json(null);
@@ -103,6 +103,17 @@ export class BookingController implements IBookingController {
       next(error);
     }
   };
+
+  async completeRide(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const rideId = req.params.rideId;
+      if (!rideId) throw BadRequestError("rideId is required");
+      await this._bookingService.completeRide(rideId);
+      res.status(StatusCode.OK).json("Ride completed successfully");
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 // {

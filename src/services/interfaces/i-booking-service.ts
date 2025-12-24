@@ -11,6 +11,7 @@ export interface IBookingService {
   bookRide(bookingReq: BookingReq): Promise<BookRideResponseDto>;
   rideAccept(driverData: RideAcceptReq): Promise<void>;
   cancelRide(rideId:string): Promise<void>;
+  completeRide(rideId:string): Promise<void>;
   checkSecurityPin(enteredPin:number,_id:string): Promise<void>;
   getBookingData(userId: string, role: string): Promise<BookRideResponseDto | null>
 }

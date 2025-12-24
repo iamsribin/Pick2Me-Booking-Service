@@ -37,6 +37,10 @@ export class EventProducer {
     );
     console.log(`[] 📤 Published  → ${notificationPayload}`);
   }
+
+  static async publishRideCompleted(rideData: any){
+
+  }
 }
 
 export const eventProducer = new EventProducer();

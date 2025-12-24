@@ -201,7 +201,7 @@ export class BookingService implements IBookingService {
       const userData = role === "User" ? `user.userId` : "driver.driverId";
       const rideData = await this._bookingRepo.findOne(
         {
-         [userData]: userId,
+          [userData]: userId,
           status: { $in: ["Pending", "Accepted", "InRide"] },
         },
         { sort: { date: -1 } }
@@ -235,5 +235,24 @@ export class BookingService implements IBookingService {
 
   async cancelRide(_id: string): Promise<void> {
     await this._bookingRepo.update(_id, { status: "Cancelled" });
+  }
+
+  async completeRide(rideId: string): Promise<void> {
+    try {
+      const rideData = await this._bookingRepo.update(rideId, { status: "Completed" });
+      if (!rideData) throw BadRequestError("no ride found");
+
+        const rideResponseDto = {
+        id: rideData._id.toString(),
+        userId: rideData.user.userId,
+        driverId: rideData.driver.driverId,
+        rideId: rideData.rideId,
+        status: rideData.status,
+      };
+      EventProducer.publishRideCompleted(rideResponseDto);
+    } catch (error) {
+      if (error instanceof HttpError) throw error;
+      throw InternalError("something went wrong");
+    }
   }
 }
