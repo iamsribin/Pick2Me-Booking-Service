@@ -21,7 +21,7 @@ export class EventProducer {
     console.log(`[] 📤 Published  → ${notificationPayload}`);
   }
 
-    static async publishRideStart(rideData:any) {
+  static async publishRideStart(rideData: any) {
     await RabbitMQ.connect({ url, serviceName: "booking-service" });
     await RabbitMQ.setupExchange(EXCHANGES.BOOKING, "topic");
 
@@ -38,8 +38,21 @@ export class EventProducer {
     console.log(`[] 📤 Published  → ${notificationPayload}`);
   }
 
-  static async publishRideCompleted(rideData: any){
+  static async publishRideCompleted(rideData: any) {
+    await RabbitMQ.connect({ url, serviceName: "booking-service" });
+    await RabbitMQ.setupExchange(EXCHANGES.BOOKING, "topic");
 
+    const notificationPayload = {
+      data: rideData,
+      type: ROUTING_KEYS.RIDE_COMPLETED,
+    };
+
+    await RabbitMQ.publish(
+      EXCHANGES.BOOKING,
+      ROUTING_KEYS.RIDE_COMPLETED,
+      notificationPayload
+    );
+    console.log(`[] 📤 Published  → ${notificationPayload}`);
   }
 }
 
