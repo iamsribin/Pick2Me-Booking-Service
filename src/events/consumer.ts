@@ -17,23 +17,33 @@ export class EventConsumer {
     });
 
     await RabbitMQ.setupExchange(EXCHANGES.NOTIFICATION, "topic");
+    await RabbitMQ.setupExchange(EXCHANGES.PAYMENT, "topic");
 
     await RabbitMQ.bindQueueToExchanges(QUEUES.BOOKING_QUEUE, [
       {
         exchange: EXCHANGES.NOTIFICATION,
         routingKeys: ["realtime-booking.#"],
       },
+      {
+        exchange: EXCHANGES.PAYMENT,
+        routingKeys: ["payment-booking.#"],
+      },
     ]);
 
     await RabbitMQ.consume(QUEUES.BOOKING_QUEUE, async (msg) => {
       switch (msg.type) {
         case ROUTING_KEYS.RIDE_ACCEPTED:
-            console.log("RIDE_ACCEPTED:",msg.data);
-            bookingService.rideAccept(msg.data);
+          console.log("RIDE_ACCEPTED:", msg.data);
+          bookingService.rideAccept(msg.data);
           break;
 
         case ROUTING_KEYS.CANCEL_RIDE:
-          bookingService.cancelRide(msg._id);
+          bookingService.cancelRide(msg.data);
+          break;
+
+        case ROUTING_KEYS.MARK_PAYMENT_COMPLETED:
+          console.log("data meg mak payment completed", msg);
+          bookingService.updatePaymentStatus(msg.data);
           break;
         default:
           console.warn("Unknown message:", msg);

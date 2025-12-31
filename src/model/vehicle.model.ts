@@ -15,5 +15,5 @@ const VehicleSchema = new mongoose.Schema({
 
 export const VehicleModel = mongoose.model<VehicleInterface>(
   "vehicles",
-  VehicleSchema
+  VehicleSchema,
 );

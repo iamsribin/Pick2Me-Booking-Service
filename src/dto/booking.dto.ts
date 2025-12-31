@@ -73,7 +73,6 @@
 //   message?: string;
 // }
 
-
 import { DriverInfo, UserInfo } from "@/types/booking";
 import { LocationCoordinates } from "@Pick2Me/shared/interfaces";
 

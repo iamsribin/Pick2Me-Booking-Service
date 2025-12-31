@@ -11,13 +11,13 @@ import { RedisService } from "@Pick2Me/shared/redis";
 @injectable()
 export class BookingController implements IBookingController {
   constructor(
-    @inject(TYPES.BookingService) private _bookingService: IBookingService
-  ) { }
+    @inject(TYPES.BookingService) private _bookingService: IBookingService,
+  ) {}
 
   getNearbyDrivers = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const lat = Number(req.query.lat ?? "");
@@ -31,14 +31,14 @@ export class BookingController implements IBookingController {
       const drivers = await this._bookingService.getNearbyDriversForHomePage(
         lat,
         lng,
-        radius
+        radius,
       );
 
       const driversList = drivers.length
         ? {
-          success: true,
-          drivers,
-        }
+            success: true,
+            drivers,
+          }
         : testDrivers;
 
       res.status(StatusCode.OK).json(driversList);
@@ -52,7 +52,7 @@ export class BookingController implements IBookingController {
   bookRide = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const bookingDetails = req.body;
@@ -70,20 +70,28 @@ export class BookingController implements IBookingController {
   getBookingData = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const user = req.gatewayUser!;
-      const rideData = await this._bookingService.getBookingData(user.id, user.role);
+      const rideData = await this._bookingService.getBookingData(
+        user.id,
+        user.role,
+      );
+      console.log("data", rideData);
       if (rideData) {
-        const driverLocation = await RedisService.getInstance().getDriverGeoPosition(rideData.driver?.driverId || '');
+        const driverLocation =
+          await RedisService.getInstance().getDriverGeoPosition(
+            rideData.driver?.driverId || "",
+          );
         const data = {
           rideData,
-          driverLocation: driverLocation || null
+          driverLocation: driverLocation || null,
         };
+
         res.status(StatusCode.OK).json(data);
       } else {
-        res.status(StatusCode.Continue).json(null);
+        res.status(StatusCode.Accepted).json(null);
       }
     } catch (error) {
       next(error);
@@ -93,7 +101,7 @@ export class BookingController implements IBookingController {
   checkSecurityPin = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const { enteredPin, _id } = req.body;
@@ -104,16 +112,21 @@ export class BookingController implements IBookingController {
     }
   };
 
-  async completeRide(req: Request, res: Response, next: NextFunction): Promise<void> {
+  completeRide = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const rideId = req.params.rideId;
+
       if (!rideId) throw BadRequestError("rideId is required");
       await this._bookingService.completeRide(rideId);
       res.status(StatusCode.OK).json("Ride completed successfully");
     } catch (error) {
       next(error);
     }
-  }
+  };
 }
 
 // {

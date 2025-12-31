@@ -1,4 +1,3 @@
-
 // export interface CreateBookingReq {
 //   userId: string;
 //   userName: string;
@@ -14,7 +13,6 @@
 //     distanceInKm: number;
 //   };
 // }
-
 
 // export interface UpdateBookingReq {
 //   id: string;
@@ -53,7 +51,6 @@
 //   };
 //   driverCoordinates: Coordinates
 // }
-
 
 // {
 //   pickupLocation: {

@@ -11,14 +11,12 @@ export const generatePIN = (): number => {
   return parseInt(pin);
 };
 
-
 export const generateRideId = () => {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   const generateRideId = customAlphabet(alphabet, 8);
 
   return `RIDE-${generateRideId()}`;
 };
-
 
 export const monthNames = [
   "January",

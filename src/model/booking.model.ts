@@ -16,11 +16,11 @@ const BookingSchema: Schema = new Schema({
     userName: { type: String, required: true },
     userNumber: { type: String, required: true },
     userProfile: { type: String, required: true },
-},
+  },
 
   driver: {
-    driverId: { type: String},
-    driverName: { type: String},
+    driverId: { type: String },
+    driverName: { type: String },
     driverNumber: { type: String },
     driverProfile: { type: String },
   },
@@ -39,21 +39,28 @@ const BookingSchema: Schema = new Schema({
 
   status: {
     type: String,
-    enum: ["Pending", "Accepted", "InRide", "Completed", "Cancelled", "NoDriver"],
+    enum: [
+      "Pending",
+      "Accepted",
+      "InRide",
+      "Completed",
+      "Cancelled",
+      "NoDriver",
+    ],
     default: "Pending",
   },
 
-  paymentStatus: {
-    type: String,
-    enum: ["idle", "Pending", "Failed", "Completed"],
-    default: "idle",
-  },
+  // paymentStatus: {
+  //   type: String,
+  //   enum: ["idle", "Pending", "Failed", "Completed"],
+  //   default: "idle",
+  // },
 
-  paymentMode: {
-    type: String,
-    enum: ["Cash", "Wallet", "Strip", ""],
-    default: ""
-  },
+  // paymentMode: {
+  //   type: String,
+  //   enum: ["Cash", "Wallet", "Strip", ""],
+  //   default: ""
+  // },
 
   feedback: { type: String },
   rating: { type: Number },

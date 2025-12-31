@@ -30,8 +30,8 @@ container
   .bind<IBookingRepository>(TYPES.BookingRepository)
   .to(BookingRepository);
 
-  container
+container
   .bind<IVehicleRepository>(TYPES.PricingRepository)
   .to(PricingRepository);
 
-  export {container};
+export { container };

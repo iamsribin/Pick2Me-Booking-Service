@@ -11,20 +11,20 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "@/types/inversify-types";
 import { OnlineDriverPreview } from "@Pick2Me/shared/interfaces";
 import { fetchUserInfo } from "@/grpc/client/user-client";
-import { BookingReq, RideAcceptReq } from "@/types/booking";
+import { AddEarningsRequest, BookingReq, RideAcceptReq } from "@/types/booking";
 import { BookRideResponseDto } from "@/dto/booking.dto";
 import { EventProducer } from "@/events/publisher";
 
 @injectable()
 export class BookingService implements IBookingService {
   constructor(
-    @inject(TYPES.BookingRepository) private _bookingRepo: IBookingRepository
-  ) { }
+    @inject(TYPES.BookingRepository) private _bookingRepo: IBookingRepository,
+  ) {}
 
   async getNearbyDriversForHomePage(
     lat: number,
     lng: number,
-    radiusKm: number
+    radiusKm: number,
   ): Promise<OnlineDriverPreview[]> {
     try {
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
@@ -37,7 +37,7 @@ export class BookingService implements IBookingService {
       const driversGeo = await redisService.findNearbyDrivers(
         lat,
         lng,
-        radiusKm
+        radiusKm,
       );
 
       if (!driversGeo || driversGeo.length === 0) return [];
@@ -58,7 +58,7 @@ export class BookingService implements IBookingService {
           };
 
           return summary;
-        })
+        }),
       );
 
       return enriched.filter((x): x is OnlineDriverPreview => x !== null);
@@ -77,7 +77,7 @@ export class BookingService implements IBookingService {
       const driversGeo = await redisService.findNearbyDrivers(
         bookingReq.pickupLocation.latitude,
         bookingReq.pickupLocation.longitude,
-        10
+        10,
       );
 
       if (!driversGeo || driversGeo.length === 0)
@@ -157,7 +157,7 @@ export class BookingService implements IBookingService {
 
       const updated = await this._bookingRepo.updateOne(
         filter as any,
-        update as any
+        update as any,
       );
 
       if (!updated) {
@@ -196,15 +196,19 @@ export class BookingService implements IBookingService {
     }
   }
 
-  async getBookingData(userId: string, role: string): Promise<BookRideResponseDto | null> {
+  async getBookingData(
+    userId: string,
+    role: string,
+  ): Promise<BookRideResponseDto | null> {
     try {
       const userData = role === "User" ? `user.userId` : "driver.driverId";
       const rideData = await this._bookingRepo.findOne(
         {
           [userData]: userId,
-          status: { $in: ["Pending", "Accepted", "InRide"] },
+          status: { $in: ["Pending", "Accepted", "InRide", "Completed"] },
+          paymentStatus: { $nin: ["Completed"] },
         },
-        { sort: { date: -1 } }
+        { sort: { date: -1 } },
       );
 
       if (!rideData) return null;
@@ -239,10 +243,12 @@ export class BookingService implements IBookingService {
 
   async completeRide(rideId: string): Promise<void> {
     try {
-      const rideData = await this._bookingRepo.update(rideId, { status: "Completed" });
+      const rideData = await this._bookingRepo.update(rideId, {
+        status: "Completed",
+      });
       if (!rideData) throw BadRequestError("no ride found");
 
-        const rideResponseDto = {
+      const rideResponseDto = {
         id: rideData._id.toString(),
         userId: rideData.user.userId,
         driverId: rideData.driver.driverId,
@@ -250,6 +256,21 @@ export class BookingService implements IBookingService {
         status: rideData.status,
       };
       EventProducer.publishRideCompleted(rideResponseDto);
+    } catch (error) {
+      if (error instanceof HttpError) throw error;
+      throw InternalError("something went wrong");
+    }
+  }
+  async updatePaymentStatus(paymentPayload: AddEarningsRequest): Promise<void> {
+    try {
+      const rideData = await this._bookingRepo.update(
+        paymentPayload.bookingId,
+        {
+          paymentStatus: paymentPayload.paymentStatus,
+          paymentMode: paymentPayload.paymentMode,
+        },
+      );
+      if (!rideData) throw BadRequestError("no ride found");
     } catch (error) {
       if (error instanceof HttpError) throw error;
       throw InternalError("something went wrong");

@@ -21,7 +21,7 @@ export interface DriverDetails {
 export async function findNearbyDrivers(
   latitude: number,
   longitude: number,
-  vehicleModel: string
+  vehicleModel: string,
 ): Promise<DriverDetails[]> {
   try {
     console.log("reached here...");
@@ -33,14 +33,14 @@ export async function findNearbyDrivers(
       latitude,
       5000,
       "m",
-      "WITHDIST"
+      "WITHDIST",
     )) as Array<[string, string]>;
 
     if (!drivers.length) return [];
 
     // 2️⃣ Prepare all keys for bulk MGET
     const keys = drivers.map(
-      ([driverId]) => `${DRIVER_DETAILS_PREFIX}${driverId}`
+      ([driverId]) => `${DRIVER_DETAILS_PREFIX}${driverId}`,
     );
     console.log(keys[0]);
     const data = await getDriverDetails(keys[0]);
@@ -67,7 +67,7 @@ export async function findNearbyDrivers(
       const vehicleNumber = parsedDriver.vehicleNumber;
       const driverPhoto = parsedDriver.driverPhoto;
       const phoneNumber = parsedDriver.driverNumber;
-      
+
       // 4️⃣ Normalize values
       const normalizedRating = Math.min(rating / 5, 1); // 0–1
       const normalizedDistance = Math.min(distance / 5000, 1); // 0–1 (cap at 5km)
@@ -99,7 +99,7 @@ export async function findNearbyDrivers(
     console.log("error", error);
 
     throw new Error(
-      `Failed to find nearby drivers: ${(error as Error).message}`
+      `Failed to find nearby drivers: ${(error as Error).message}`,
     );
   }
 }

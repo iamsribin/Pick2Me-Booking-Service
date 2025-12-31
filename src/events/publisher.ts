@@ -16,7 +16,7 @@ export class EventProducer {
     await RabbitMQ.publish(
       EXCHANGES.BOOKING,
       ROUTING_KEYS.NOTIFY_BOOK_RIDE_DRIVER,
-      notificationPayload
+      notificationPayload,
     );
     console.log(`[] 📤 Published  → ${notificationPayload}`);
   }
@@ -33,7 +33,7 @@ export class EventProducer {
     await RabbitMQ.publish(
       EXCHANGES.BOOKING,
       ROUTING_KEYS.NOTIFY_RIDE_START,
-      notificationPayload
+      notificationPayload,
     );
     console.log(`[] 📤 Published  → ${notificationPayload}`);
   }
@@ -50,7 +50,7 @@ export class EventProducer {
     await RabbitMQ.publish(
       EXCHANGES.BOOKING,
       ROUTING_KEYS.RIDE_COMPLETED,
-      notificationPayload
+      notificationPayload,
     );
     console.log(`[] 📤 Published  → ${notificationPayload}`);
   }

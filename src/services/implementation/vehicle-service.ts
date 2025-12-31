@@ -9,7 +9,7 @@ import { InternalError } from "@Pick2Me/shared/errors";
 @injectable()
 export class VehicleService implements IVehicleService {
   constructor(
-    @inject(TYPES.PricingRepository) private _vehicleRepo: IVehicleRepository
+    @inject(TYPES.PricingRepository) private _vehicleRepo: IVehicleRepository,
   ) {}
 
   async getPrice(distanceKm: number, vehicleModel: string): Promise<number> {

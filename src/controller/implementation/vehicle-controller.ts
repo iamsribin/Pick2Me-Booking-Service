@@ -7,20 +7,20 @@ import { NextFunction, Request, Response } from "express";
 @injectable()
 export class VehicleController implements IVehicleController {
   constructor(
-    @inject(TYPES.VehicleService) private _vehicleService: IVehicleService
+    @inject(TYPES.VehicleService) private _vehicleService: IVehicleService,
   ) {}
 
   fetchVehicles = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       console.log("ajfdalf");
-      
+
       const response = await this._vehicleService.fetchVehicles();
       console.log(response);
-      
+
       res.status(+response.status).json(response.data);
     } catch (error) {
       next(error);
